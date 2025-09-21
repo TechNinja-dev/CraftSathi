@@ -10,7 +10,7 @@ from firebase_admin import credentials, auth
 import base64
 # from google.generativeai import configure, GenerativeModel
 import datetime
-# from google import genai
+from google import genai
 import google.generativeai as genai
 from google.genai import types
 
