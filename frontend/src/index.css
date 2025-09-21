@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #F9F7F3; /* Corresponds to brand-bg */
+  font-family: 'Inter', sans-serif;
+  color: #3C3C3C; /* Corresponds to brand-text */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+

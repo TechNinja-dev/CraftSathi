@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Auth Test</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; width: 320px; }
+        h2 { margin-top: 0; color: #333; }
+        input { width: calc(100% - 22px); padding: 10px; margin-bottom: 1rem; border: 1px solid #ddd; border-radius: 4px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
+        .btn-submit { background-color: #007bff; color: white; margin-bottom: 0.5rem; }
+        .btn-submit:hover { background-color: #0056b3; }
+        hr { border: 0; height: 1px; background: #eee; margin: 1.5rem 0; }
+        .btn-google { display: flex; align-items: center; justify-content: center; gap: 10px; background-color: #fff; color: #444; border: 1px solid #ddd; }
+        .btn-google:hover { background-color: #f8f8f8; }
+        .btn-google svg { width: 18px; height: 18px; }
+        #status-box { margin-top: 1rem; }
+        h4 { margin: 1rem 0 0.5rem 0; color: #555;}
+        pre { background-color: #eee; padding: 1rem; border-radius: 4px; text-align: left; word-wrap: break-word; white-space: pre-wrap; font-size: 0.8rem; max-height: 150px; overflow-y: auto; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Firebase Auth Test</h2>
+    <div id="auth-form">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        
+        <button id="registerBtn" class="btn-submit">Register</button>
+        <button id="loginBtn" class="btn-submit">Login</button>
+        
+        <hr>
+        
+        <button id="googleBtn" class="btn-google">
+            <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.42-4.55H24v8.51h12.8c-.57 3.11-2.22 5.77-4.83 7.6l7.98 6.19C45.03 39.88 48 32.73 48 24c0-.66-.07-1.31-.19-1.95h.17z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.98-6.19c-2.17 1.45-4.94 2.3-8.01 2.3-6.27 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg>
+            Continue with Google
+        </button>
+    </div>
+    
+    <div id="status-box">
+        <h4>ID Token:</h4>
+        <pre id="idToken">Logged out</pre>
+        <button id="logoutBtn" style="display:none; width: 100%; margin-top: 1rem; background-color: #6c757d; color: white;">Logout</button>
+    </div>
+</div>
+
+<!-- Use modular SDK imports -->
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+    import { 
+        getAuth, 
+        GoogleAuthProvider, 
+        signInWithPopup, 
+        createUserWithEmailAndPassword, 
+        signInWithEmailAndPassword,
+        signOut,
+        onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+
+    // --- 1. YOUR FIREBASE CONFIGURATION ---
+    // These values are now injected by the FastAPI server from your .env file.
+    const firebaseConfig = {
+        apiKey: "{{ firebase_api_key }}",
+        authDomain: "{{ firebase_auth_domain }}",
+        projectId: "{{ firebase_project_id }}",
+        storageBucket: "{{ firebase_storage_bucket }}",
+        messagingSenderId: "{{ firebase_messaging_sender_id }}",
+        appId: "{{ firebase_app_id }}"
+    };
+
+    // --- 2. INITIALIZE FIREBASE AND AUTH ---
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    // --- 3. GET DOM ELEMENTS ---
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const registerBtn = document.getElementById('registerBtn');
+    const loginBtn = document.getElementById('loginBtn');
+    const googleBtn = document.getElementById('googleBtn');
+    const idTokenDiv = document.getElementById('idToken');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const authForm = document.getElementById('auth-form');
+
+    // --- 4. HELPER FUNCTION TO GET AND DISPLAY TOKEN ---
+    async function updateToken(user) {
+        if (user) {
+            try {
+                const token = await user.getIdToken(true); // Force refresh
+             
+                idTokenDiv.textContent = "DONE";
+                logoutBtn.style.display = 'block';
+                authForm.style.display = 'none';
+            } catch (error) {
+                console.error("Error getting ID token:", error);
+                idTokenDiv.textContent = "Error getting token.";
+            }
+        } else {
+            idTokenDiv.textContent = "Logged out";
+            logoutBtn.style.display = 'none';
+            authForm.style.display = 'block';
+        }
+    }
+
+    // --- 5. LISTEN FOR AUTH STATE CHANGES ---
+    onAuthStateChanged(auth, (user) => {
+        updateToken(user);
+    });
+
+    // --- 6. EVENT LISTENERS ---
+    registerBtn.addEventListener('click', async () => {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+            alert("Registration successful!");
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+
+    loginBtn.addEventListener('click', async () => {
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+            alert("Login successful!");
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+
+    googleBtn.addEventListener('click', async () => {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            alert("Google sign-in successful!");
+        } catch (error) {
+            console.error("Google Sign-In Error:", error);
+            alert(`Google Sign-In Failed: ${error.message}`);
+        }
+    });
+    
+    logoutBtn.addEventListener('click', async () => {
+        await signOut(auth);
+        alert("Logged out!");
+    });
+
+</script>
+
+</body>
+</html>
+
