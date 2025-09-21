@@ -7,3 +7,4 @@ google-genai
 python-multipart
 firebase-admin
 pyjwt
+email-validator 
