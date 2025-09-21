@@ -10,7 +10,8 @@ from firebase_admin import credentials, auth
 import base64
 # from google.generativeai import configure, GenerativeModel
 import datetime
-from google import genai
+# from google import genai
+import google.generativeai as genai
 from google.genai import types
 
 
@@ -26,7 +27,8 @@ images_col = db.get_collection('images')
 
 
 # --- Middleware ---
-origins = ["http://localhost:3000"]
+origins = ["http://localhost:3000",
+           "https://craft-sathi-wbof.vercel.app"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
