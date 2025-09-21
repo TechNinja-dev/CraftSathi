@@ -182,7 +182,7 @@ async def generate_content(file: UploadFile = File(...)):
         contents = await file.read()
         
         # Configure Gemini with your API key from .env
-        genai.configure(api_key=os.getenv("IMG_API_KRY"))
+        genai.configure(api_key=os.getenv("IMG_API_KEY"))
         
         # Initialize the Gemini model for image understanding
         model = genai.GenerativeModel(model_name="gemini-1.5-pro-latest")
