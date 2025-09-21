@@ -3,6 +3,7 @@ uvicorn[standard]
 python-dotenv
 pymongo
 google-generativeai
+google-genai
 python-multipart
 firebase-admin
 pyjwt
