@@ -26,6 +26,7 @@ const Photo = () => {
       prompt: prompt,
       userId: user ? user.uid : null,
     };
+    console.log('Sending payload:', payload);
 
     try {
       const response = await fetch(`${API_URL}/api/generate-photo`, {

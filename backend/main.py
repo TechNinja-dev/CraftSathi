@@ -11,7 +11,7 @@ import base64
 # from google.generativeai import configure, GenerativeModel
 import datetime
 from google import genai
-import google.generativeai as genai
+import google.generativeai as genaigg
 from google.genai import types
 
 
@@ -182,10 +182,10 @@ async def generate_content(file: UploadFile = File(...)):
         contents = await file.read()
         
         # Configure Gemini with your API key from .env
-        genai.configure(api_key=os.getenv("IMG_API_KEY"))
+        genaigg.configure(api_key=os.getenv("IMG_API_KEY"))
         
         # Initialize the Gemini model for image understanding
-        model = genai.GenerativeModel(model_name="gemini-1.5-pro-latest")
+        model = genaigg.GenerativeModel(model_name="gemini-1.5-pro-latest")
         
         # Prepare the prompt and image data for the Gemini API call
         response = model.generate_content([
@@ -209,7 +209,7 @@ class PhotoResponse(BaseModel):
 
 class PhotoRequest(BaseModel):
     prompt: str
-    userId: str = None  
+    userId: str | None = None
     
 
 @app.post("/api/generate-photo", response_model=PhotoResponse)
