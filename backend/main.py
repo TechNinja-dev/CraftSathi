@@ -28,7 +28,7 @@ images_col = db.get_collection('images')
 
 # --- Middleware ---
 origins = ["http://localhost:3000",
-           "https://craft-sathi-wbof.vercel.app"]
+           "https://craft-sathi-wbof-1cevp472e.vercel.app"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
