@@ -185,7 +185,7 @@ async def generate_content(file: UploadFile = File(...)):
         genaigg.configure(api_key=os.getenv("IMG_API_KEY"))
         
         # Initialize the Gemini model for image understanding
-        model = genaigg.GenerativeModel(model_name="gemini-1.5-pro-latest")
+        model = genaigg.GenerativeModel(model_name="gemini-1.5-flash")
         
         # Prepare the prompt and image data for the Gemini API call
         response = model.generate_content([
