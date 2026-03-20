@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { ImagePlus, Loader2 } from 'lucide-react';
+import { ImagePlus, Loader2, Copy, Check } from 'lucide-react';
 import Footer from './Footer.jsx';
 
 const Generate = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [responseMessage, setResponseMessage] = useState('');
+  const [captions, setCaptions] = useState([]);
   const [error, setError] = useState('');
+  const [copiedIndex, setCopiedIndex] = useState(null);
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 
@@ -16,7 +17,7 @@ const Generate = () => {
     if (file) {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
-      setResponseMessage('');
+      setCaptions([]);
       setError('');
     }
   };
@@ -28,7 +29,7 @@ const Generate = () => {
     }
 
     setLoading(true);
-    setResponseMessage('');
+    setCaptions([]);
     setError('');
 
     const formData = new FormData();
@@ -46,7 +47,18 @@ const Generate = () => {
       }
 
       const data = await response.json();
-      setResponseMessage(data.message);
+      // Handle both array and string responses
+      if (Array.isArray(data.message)) {
+        setCaptions(data.message);
+      } else if (typeof data.message === 'string') {
+        // If it's a string, try to parse as JSON or split by newlines
+        try {
+          const parsed = JSON.parse(data.message);
+          setCaptions(Array.isArray(parsed) ? parsed : [data.message]);
+        } catch {
+          setCaptions([data.message]);
+        }
+      }
       
     } catch (err) {
       console.error('Error:', err);
@@ -54,6 +66,12 @@ const Generate = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const copyToClipboard = (text, index) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
   };
 
   return (
@@ -65,7 +83,7 @@ const Generate = () => {
           <span className="text-brand-primary">Powered by AI</span>
         </h1>
         <p className="mt-4 text-lg text-gray-600">
-          Upload a photo of your art to get started.
+          Upload a photo of your art to get 5 ready-to-post social media captions.
         </p>
 
         <div className="mt-8 flex flex-col lg:flex-row gap-8">
@@ -108,29 +126,65 @@ const Generate = () => {
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <Loader2 className="animate-spin mr-2" /> Processing...
+                  <Loader2 className="animate-spin mr-2" /> Generating Captions...
                 </span>
               ) : (
-                'Generate Description'
+                'Generate Captions ✨'
               )}
             </button>
           </div>
 
-          {/* Right Panel: Backend Response */}
+          {/* Right Panel: Captions Display */}
           <div className="w-full lg:w-1/2 flex flex-col">
-            <div className="w-full h-80 border-2 border-gray-300 rounded-xl bg-white/50 backdrop-blur-sm p-4 overflow-auto text-left text-gray-700">
-              {responseMessage ? (
-                <p>{responseMessage}</p>
+            <div className="w-full min-h-80 bg-white/50 backdrop-blur-sm rounded-xl p-6 text-left">
+              {captions.length > 0 ? (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-brand-text mb-4">✨ Ready-to-Post Captions</h3>
+                  {captions.map((caption, index) => (
+                    <div 
+                      key={index}
+                      className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <span className="inline-block w-6 h-6 bg-brand-primary/10 text-brand-primary rounded-full text-sm font-semibold text-center leading-6 mr-2">
+                            {index + 1}
+                          </span>
+                          <p className="text-gray-700 inline">{caption}</p>
+                        </div>
+                        <button
+                          onClick={() => copyToClipboard(caption, index)}
+                          className="flex-shrink-0 p-2 text-gray-400 hover:text-brand-primary transition-colors"
+                          title="Copy caption"
+                        >
+                          {copiedIndex === index ? (
+                            <Check size={18} className="text-green-500" />
+                          ) : (
+                            <Copy size={18} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : loading ? (
+                <div className="flex flex-col items-center justify-center h-80">
+                  <Loader2 className="animate-spin text-brand-primary mb-4" size={32} />
+                  <p className="text-gray-400">Analyzing your image and generating captions...</p>
+                </div>
               ) : (
-                <p className="text-gray-400">Your generated product description will appear here.</p>
+                <div className="flex flex-col items-center justify-center h-80">
+                  <p className="text-gray-400 text-center">
+                    Upload an image and click "Generate Captions"<br />
+                    to get 5 unique social media captions ✨
+                  </p>
+                </div>
               )}
             </div>
           </div>
         </div>
       </div>
-
     </div>
-    
   );
 };
 

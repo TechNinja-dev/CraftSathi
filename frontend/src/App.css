@@ -36,3 +36,48 @@
     transform: rotate(360deg);
   }
 }
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.animate-slide-out {
+  animation: slideOut 0.3s ease-out forwards;
+}
+
+
+/* Toast container styling */
+.fixed.top-6.right-6 {
+  pointer-events: none;
+}
+
+.fixed.top-6.right-6 > div {
+  pointer-events: auto;
+}
+
+/* Add spacing between multiple toasts */
+.fixed.top-6.right-6 > div:not(:last-child) {
+  margin-bottom: 0.75rem;
+}

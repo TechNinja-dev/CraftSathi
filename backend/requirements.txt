@@ -2,8 +2,7 @@ fastapi
 uvicorn[standard]
 python-dotenv
 pymongo
-google-generativeai
-google-genai
+openai
 python-multipart
 firebase-admin
 pyjwt

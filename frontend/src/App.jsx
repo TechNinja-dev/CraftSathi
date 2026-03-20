@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { Routes, Route,Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { auth } from './api/firebase.js';
 import { onAuthStateChanged } from 'firebase/auth';
 import Generate from './components/layout/generate.jsx';
@@ -9,10 +9,8 @@ import MyStuff from './components/layout/mystuff.jsx';
 import WelcomePage from './pages/WelcomePage.jsx';
 import AuthPage from './pages/AuthPage.jsx';
 import Navbar from './components/layout/Navbar.jsx';
-// import NetworkPage from './components/layout/Network/NetworkPage.jsx'; // 
 import AboutPage from './pages/about.jsx';
-
-
+import { ToastProvider } from './context/ToastContext.jsx'; // ✅ Import ToastProvider
 
 // Create the Auth Context and Hook
 const AuthContext = createContext(null);
@@ -39,37 +37,34 @@ function App() {
     return <div className="flex items-center justify-center h-screen bg-brand-bg">Loading...</div>;
   }
 
-return (
-  <AuthContext.Provider value={{ user }}>
-    <Navbar />
-    <Routes>
-      {/* Route 1: The Welcome Page at the root URL "/" */}
-      <Route path="/" element={<WelcomePage />} />
+  return (
+    <ToastProvider> {/* ✅ Wrap everything with ToastProvider */}
+      <AuthContext.Provider value={{ user }}>
+        <Navbar />
+        <Routes>
+          {/* Route 1: The Welcome Page at the root URL "/" */}
+          <Route path="/" element={<WelcomePage />} />
 
-      {/* Route 2: The Authentication Page at "/auth" */}
-      {/* It should NOT redirect if the user is logged in, as this is the only way to log in. */}
-      <Route path="/auth" element={<AuthPage />} />
+          {/* Route 2: The Authentication Page at "/auth" */}
+          {/* It should NOT redirect if the user is logged in, as this is the only way to log in. */}
+          <Route path="/auth" element={<AuthPage />} />
 
-      {/* Route 3: The Generate Page (Protected) at "/generate" */}
-      {/* If the user is NOT logged in, they will be redirected to the auth page */}
-      <Route path="/generate" element={<Generate />} />
+          {/* Route 3: The Generate Page (Protected) at "/generate" */}
+          {/* If the user is NOT logged in, they will be redirected to the auth page */}
+          <Route path="/generate" element={<Generate />} />
 
+          <Route path="/photo" element={<Photo />} />
 
-      <Route path="/photo" element={<Photo />} />
+          <Route path="/mystuff" element={<MyStuff />} />
 
-      {/* <Route path="/network" element={<NetworkPage />} /> */}
+          <Route path="/about" element={<AboutPage />} />
 
-      <Route path="/mystuff" element={ <MyStuff />} />
-
-      <Route path="/about" element={<AboutPage />} />
-
-      {/* A catch-all that redirects any unknown URL to the welcome page */}
-      <Route path="*" element={<Navigate to="/" />} />
-
-
-    </Routes>
-  </AuthContext.Provider>
-);
+          {/* A catch-all that redirects any unknown URL to the welcome page */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </AuthContext.Provider>
+    </ToastProvider>
+  );
 }
 
 export default App;
