@@ -105,7 +105,7 @@ const Footer = () => {
                 </div>
                 
                 <div className="text-center text-white/50 mt-12 border-t border-white/20 pt-6">
-                    <p>CraftSathi | 2025</p>
+                    <p>© {new Date().getFullYear()} CraftSathi. All rights reserved.</p>
                 </div>
             </footer>
         </>

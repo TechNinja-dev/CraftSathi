@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import { useAuth } from '../../App.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 const Photo = () => {
   const { user } = useAuth();

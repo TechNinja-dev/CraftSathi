@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 
 const GoogleLogo = () => (
   <svg className="w-5 h-5" viewBox="0 0 48 48">
@@ -15,14 +16,14 @@ const GoogleLogo = () => (
   </svg>
 );
 
-const AuthForm = () => {
+const AuthForm = ({ onOtpRequired }) => {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { login } = useAuth();
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -37,32 +38,6 @@ const AuthForm = () => {
     setName('');
   };
 
-  const handleBackendAuth = async (endpoint, body) => {
-    try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || 'Authentication failed');
-      }
-
-      localStorage.setItem('authToken', data.token);
-      if (data.user) {
-        localStorage.setItem('userData', JSON.stringify(data.user));
-      }
-      
-      return data;
-    } catch (err) {
-      console.error('Backend auth error:', err);
-      throw err;
-    }
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -70,57 +45,65 @@ const AuthForm = () => {
 
     try {
       if (isLoginMode) {
-        // LOGIN
-        try {
-          const userCred = await signInWithEmailAndPassword(auth, email, password);
-          const result = await handleBackendAuth('/auth/login', { email, password });
-          
-          // Get user name from response
-          const userName = result.user?.u_name || email.split('@')[0];
-          
-          // Navigate first
-          navigate('/');
-          
-          // Show notification after navigation
-          setTimeout(() => {
-            showToast(`Welcome back, ${userName}!`, 'success');
-          }, 100);
-          
-        } catch (firebaseError) {
-          if (firebaseError.code === 'auth/user-not-found') {
-            throw new Error('User not found. Please register first.');
-          } else if (firebaseError.code === 'auth/wrong-password') {
-            throw new Error('Invalid password. Please try again.');
-          } else if (firebaseError.code === 'auth/invalid-email') {
-            throw new Error('Invalid email format.');
-          } else {
-            throw new Error(firebaseError.message);
-          }
+        const userCred = await signInWithEmailAndPassword(auth, email, password);
+        const token = await userCred.user.getIdToken();
+        
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || 'Authentication failed');
         }
+
+        login(data.token, data.user);
+        
+        const userName = data.user?.u_name || email.split('@')[0];
+        navigate('/');
+        setTimeout(() => {
+          showToast(`Welcome back, ${userName}!`, 'success');
+        }, 100);
         
       } else {
-        // REGISTER
-        const result = await handleBackendAuth('/auth/register', { 
-          email, 
-          password,
-          name 
+        const response = await fetch(`${API_URL}/auth/register`, { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, name }),
         });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || 'Registration failed');
+        }
+
+        login(data.token, data.user);
         
-        // Get the registered user's name
         const userName = name;
-        
-        // Navigate first
         navigate('/');
-        
-        // Show notification after navigation
         setTimeout(() => {
           showToast(`Successfully registered! Welcome to CraftSathi, ${userName}!`, 'success');
         }, 100);
       }
 
     } catch (err) {
-      setError(err.message);
-      showToast(err.message, 'error');
+      if (err.code === 'auth/user-not-found') {
+        setError('User not found. Please register first.');
+        showToast('User not found. Please register first.', 'error');
+      } else if (err.code === 'auth/wrong-password') {
+        setError('Invalid password. Please try again.');
+        showToast('Invalid password. Please try again.', 'error');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Invalid email format.');
+        showToast('Invalid email format.', 'error');
+      } else {
+        setError(err.message);
+        showToast(err.message, 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -136,24 +119,40 @@ const AuthForm = () => {
       const idToken = await result.user.getIdToken();
       const displayName = result.user.displayName;
       const userEmail = result.user.email;
+      
+      await auth.signOut();
+      
+      console.log("Google sign-in successful, calling backend...");
 
-      const result_data = await handleBackendAuth('/auth/google', { 
-        token: idToken,
-        name: displayName 
+      const response = await fetch(`${API_URL}/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: idToken, name: displayName }),
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Authentication failed');
+      }
+
+      if (data.requires_otp) {
+        console.log("OTP required for:", data.email);
+        onOtpRequired(data.email, idToken);
+        setLoading(false);
+        return;
+      }
+
+      login(data.token, data.user);
       
-      // Get user name from response
-      const userName = result_data.user?.u_name || displayName || userEmail.split('@')[0];
-      
-      // Navigate first
+      const userName = data.user?.u_name || displayName || userEmail.split('@')[0];
       navigate('/');
-      
-      // Show notification after navigation
       setTimeout(() => {
         showToast(`Welcome${userName ? ` ${userName}` : ''}! Successfully signed in with Google.`, 'success');
       }, 100);
 
     } catch (err) {
+      console.error("Google sign-in error:", err);
       if (err.code === 'auth/popup-closed-by-user') {
         const errorMsg = 'Sign-in cancelled. Please try again.';
         setError(errorMsg);

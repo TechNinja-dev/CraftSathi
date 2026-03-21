@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 import Navbar from '../components/layout/Navbar.jsx'; 
 import Footer from '../components/layout/Footer.jsx'; 
 import { Sparkles, Image, Archive, Users, Heart } from 'lucide-react';
 
-// 1. Import a suitable image for the background
-// import missionBg from '../assets/welcomepageimg.png'; // You'll need to create this file
-
 const AboutPage = () => {
+    const { isAuthenticated } = useAuth();
+
     return (
         <div className="min-h-screen bg-brand-bg flex flex-col">
             <Navbar />
@@ -28,16 +28,14 @@ const AboutPage = () => {
                     </div>
                 </section>
 
-                {/* Our Mission Section - 2. Added background image and overlay */}
+                {/* Our Mission Section */}
                 <section 
                     className="relative py-16 md:py-24"
                     style={{
-                        // backgroundImage: `url(${missionBg})`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                     }}
                 >
-                    {/* Background Overlay for better text readability */}
                     <div className="absolute inset-0 bg-white opacity-70"></div> 
                     
                     <div className="relative z-10 max-w-5xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -94,18 +92,20 @@ const AboutPage = () => {
                     </div>
                 </section>
 
-                {/* Call to Action Section */}
-                <section className="bg-white py-16 md:py-24">
-                    <div className="max-w-4xl mx-auto px-4 text-center">
-                        <h2 className="text-4xl font-bold font-display text-brand-text mb-6">Ready to share your craft with the world?</h2>
-                        <Link 
-                            to="/auth" 
-                            className="inline-block px-10 py-4 bg-brand-primary text-white text-lg font-semibold rounded-full shadow-lg hover:bg-brand-primary-hover transition-transform transform hover:scale-105"
-                        >
-                            Join CraftSathi Today
-                        </Link>
-                    </div>
-                </section>
+                {/* Call to Action Section - Only visible when user is NOT logged in */}
+                {!isAuthenticated && (
+                    <section className="bg-white py-16 md:py-24">
+                        <div className="max-w-4xl mx-auto px-4 text-center">
+                            <h2 className="text-4xl font-bold font-display text-brand-text mb-6">Ready to share your craft with the world?</h2>
+                            <Link 
+                                to="/auth" 
+                                className="inline-block px-10 py-4 bg-brand-primary text-white text-lg font-semibold rounded-full shadow-lg hover:bg-brand-primary-hover transition-transform transform hover:scale-105"
+                            >
+                                Join CraftSathi Today
+                            </Link>
+                        </div>
+                    </section>
+                )}
             </main>
 
             <Footer />

@@ -3,7 +3,10 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import base64
-
+from app.db.mongodb import user_col,images_col
+import datetime
+import requests
+from huggingface_hub import InferenceClient
 
 load_dotenv()
 
@@ -87,6 +90,7 @@ def process_description(raw_text):
             caption = re.sub(r'^[0-9]\.\s*', '', caption)
             caption = re.sub(r'^[🎨📖🛍️✨💫1️⃣2️⃣3️⃣4️⃣5️⃣]\s*', '', caption)
             caption = caption.strip()
+            caption=caption[14:]
             if caption and len(caption) > 5:
                 captions.append(caption)
     
@@ -105,29 +109,57 @@ def process_description(raw_text):
 
 
 def generate_image(prompt, userId=None):
+    """
+    Generate image using OpenAI-compatible Hugging Face Inference Providers
+    """
+    try:
+        client = OpenAI(
+            base_url="https://router.huggingface.co/hf-inference/v1",
+            api_key=os.getenv("HF_TOKEN"),
+        )
+        
+        response = client.chat.completions.create(
+            model="stabilityai/stable-diffusion-xl-base-1.0",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            extra_body={
+                "response_format": {"type": "image_url"}
+            },
+            timeout=60
+        )
+        
+        # Extract image URL from response
+        image_content = response.choices[0].message.content
+        
+        if isinstance(image_content, dict) and "image_url" in image_content:
+            image_url = image_content["image_url"]["url"]
+        elif isinstance(image_content, str):
+            image_url = image_content
+        else:
+            image_url = str(image_content)
+        
+        # Save to database if userId provided
+        if userId:
+            from app.db.mongodb import user_col, images_col
+            user_doc = user_col.find_one({"u_Id": userId})
+            if user_doc:
+                images_col.insert_one({
+                    "user_id": user_doc["_id"],
+                    "prompt": prompt,
+                    "image_url": image_url,
+                    "created_at": datetime.datetime.utcnow()
+                })
+        
+        return image_url
+        
+    except Exception as e:
+        print(f"Image generation error: {str(e)}")
+        return None
 
-    response = client.chat.completions.create(
-        model="stabilityai/stable-diffusion-xl",
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
-    )
-
-    image_base64 = response.choices[0].message.content
-
-    image_url = f"data:image/png;base64,{image_base64}"
-
-    if userId:
-        user_doc = user_col.find_one({"u_Id": userId})
-        if user_doc:
-            images_col.insert_one({
-                "user_id": user_doc["_id"],
-                "prompt": prompt,
-                "image_url": image_url,
-                "created_at": datetime.datetime.utcnow()
-            })
-
-    return image_url
 
 
 # import requests
