@@ -229,7 +229,7 @@ async def google_login(data: dict):
                 "u_Id": uid,  # Make sure u_Id is included
                 "u_name": name,
                 "u_mail": email,
-                "id": str(user_doc["_id"]) if user_doc else None
+                "id": str(user["_id"]) if user else None
             }
         }
         

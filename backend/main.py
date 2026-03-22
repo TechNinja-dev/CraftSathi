@@ -10,6 +10,7 @@ initialize_firebase()
 
 origins = [
     "http://localhost:3000",
+    "http://localhost:5173",
     "https://craft-sathi-wbof.vercel.app"
 ]
 

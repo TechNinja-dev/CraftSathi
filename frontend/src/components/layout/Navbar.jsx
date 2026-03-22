@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 const Navbar = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-
-  const handleLogout = () => {
-    logout();
-  };
+    if (location.pathname === '/profile') {
+    return null;
+  }
 
   return (
     <header className="absolute top-0 left-0 w-full z-10 p-4">
@@ -33,12 +34,13 @@ const Navbar = () => {
           </Link>
 
           {isAuthenticated ? (
-            <button 
-              onClick={handleLogout}
-              className="px-5 py-2 bg-brand-primary text-white font-semibold rounded-lg shadow-md hover:bg-brand-primary-hover transition-colors"
+            <Link 
+              to="/profile" 
+              className="flex items-center gap-2 px-5 py-2 bg-brand-primary text-white font-semibold rounded-lg shadow-md hover:bg-brand-primary-hover transition-colors"
             >
-              Logout
-            </button>
+              <User size={18} />
+              Profile
+            </Link>
           ) : (
             <Link 
               to="/auth" 
@@ -73,12 +75,15 @@ const Navbar = () => {
           </Link>
 
           {isAuthenticated ? (
-            <button 
-              onClick={() => { handleLogout(); setIsOpen(false); }}
-              className="px-5 py-2 bg-brand-primary text-white font-semibold rounded-lg shadow-md hover:bg-brand-primary-hover transition-colors"
+            <Link 
+              to="/profile" 
+              onClick={() =>{ console.log("Navigating to /profile");
+                setIsOpen(false)}}
+              className="flex items-center justify-center gap-2 px-5 py-2 bg-brand-primary text-white font-semibold rounded-lg shadow-md hover:bg-brand-primary-hover transition-colors"
             >
-              Logout
-            </button>
+              <User size={18} />
+              Profile
+            </Link>
           ) : (
             <Link 
               to="/auth" 

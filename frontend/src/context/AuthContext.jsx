@@ -1,11 +1,10 @@
+// src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth } from '../api/firebase.js';
 import { onAuthStateChanged } from 'firebase/auth';
 
-// Create the context
 const AuthContext = createContext(null);
 
-// Custom hook to use auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -14,7 +13,6 @@ export const useAuth = () => {
   return context;
 };
 
-// Auth Provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,18 +28,25 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  // Check localStorage for custom auth data
+  // Check localStorage for custom auth data on mount
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     const storedUser = localStorage.getItem('userData');
     
     if (token && storedUser) {
-      setIsAuthenticated(true);
-      setUserData(JSON.parse(storedUser));
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setIsAuthenticated(true);
+        setUserData(parsedUser);
+        console.log("AuthContext: User data loaded from localStorage:", parsedUser);
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+      }
     }
   }, []);
 
   const login = (token, userInfo) => {
+    console.log("AuthContext login called with:", userInfo);
     localStorage.setItem('authToken', token);
     localStorage.setItem('userData', JSON.stringify(userInfo));
     setIsAuthenticated(true);
@@ -53,14 +58,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('userData');
     setIsAuthenticated(false);
     setUserData(null);
-    // Also sign out from Firebase if needed
     auth.signOut();
   };
 
   const value = {
-    user,           // Firebase user
-    isAuthenticated, // Custom auth state
-    userData,       // Custom user data
+    user,
+    isAuthenticated,
+    userData,
     login,
     logout,
     loading

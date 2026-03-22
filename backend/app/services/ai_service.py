@@ -149,8 +149,15 @@ def generate_image(prompt, userId=None):
                 print(f"✅ Found {len(photos)} images, selected: {image_url}")
                 
                 # Save to database if userId provided
+                print(f"🔍 Before condition check:")
+                print(f"   - userId: {userId} (type: {type(userId)})")
+                print(f"   - image_url: {image_url} (type: {type(image_url)})")
+                print(f"   - userId is True: {bool(userId)}")
+                print(f"   - image_url is True: {bool(image_url)}")
                 if userId and image_url:
+                    print("Got user",userId,"image_url",image_url)
                     user_doc = user_col.find_one({"u_Id": userId})
+                    print(user_doc)
                     if user_doc:
                         print("Saving to DB")
                         images_col.insert_one({
@@ -161,6 +168,7 @@ def generate_image(prompt, userId=None):
                             "source": "pexels",
                             "created_at": datetime.datetime.utcnow()
                         })
+                        print("saved to DB")
                 
                 return image_url
             else:

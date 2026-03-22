@@ -24,3 +24,8 @@ misc
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+dummy.json
+insert_dummy.py
+
+tushar/CraftSathi/node_modules/

@@ -63,7 +63,7 @@ const Description = () => {
         },
         body: JSON.stringify(requestBody),
       });
-
+      
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(`API error: ${response.status} - ${errorData.error.message}`);

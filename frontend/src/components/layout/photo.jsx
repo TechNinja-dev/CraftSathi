@@ -3,12 +3,11 @@ import { Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 const Photo = () => {
-  const { user } = useAuth();
+  const { isAuthenticated, userData } = useAuth(); // Use custom auth
   const [prompt, setPrompt] = useState('');
-  const [generatedImageUrl, setGeneratedImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  const [generatedImageUrl, setGeneratedImageUrl] = useState('');
   const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 
   const handleGenerate = async () => {
@@ -21,12 +20,18 @@ const Photo = () => {
     setError('');
     setGeneratedImageUrl('');
 
-    // Prepare the payload, including the userId
+    // Get userId from userData (custom auth)
+    const userId = isAuthenticated && userData ? userData.u_Id : null;
+    
+    // Prepare the payload
     const payload = {
       prompt: prompt,
-      userId: user ? user.uid : null,
+      userId: userId,  // Now using custom auth user ID
     };
+    
     console.log('Sending payload:', payload);
+    console.log('isAuthenticated:', isAuthenticated);
+    console.log('userData:', userData);
 
     try {
       const response = await fetch(`${API_URL}/api/generate-photo`, {
@@ -43,8 +48,8 @@ const Photo = () => {
       }
 
       const data = await response.json();
-      // The image is returned as a data URL, so we set it directly
       setGeneratedImageUrl(data.image_url);
+      
     } catch (err) {
       console.error('Error generating image:', err);
       setError(`Error: ${err.message}`);
