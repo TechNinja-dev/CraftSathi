@@ -226,8 +226,10 @@ async def google_login(data: dict):
             "token": custom_token.decode("utf-8"),
             "user": {
                 "uid": uid,
-                "name": name,
-                "email": email
+                "u_Id": uid,  # Make sure u_Id is included
+                "u_name": name,
+                "u_mail": email,
+                "id": str(user_doc["_id"]) if user_doc else None
             }
         }
         

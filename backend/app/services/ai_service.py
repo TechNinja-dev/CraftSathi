@@ -7,6 +7,7 @@ from app.db.mongodb import user_col,images_col
 import datetime
 import requests
 from huggingface_hub import InferenceClient
+import random
 
 load_dotenv()
 
@@ -110,76 +111,112 @@ def process_description(raw_text):
 
 def generate_image(prompt, userId=None):
     """
-    Generate image using OpenAI-compatible Hugging Face Inference Providers
+    Enhance user prompt using AI, then fetch craft images from Pexels API
     """
     try:
-        client = OpenAI(
-            base_url="https://router.huggingface.co/hf-inference/v1",
-            api_key=os.getenv("HF_TOKEN"),
-        )
+        # Step 1: Enhance the user prompt using OpenRouter
+        enhanced_prompt = enhance_prompt_with_ai(prompt)
+        print(f"Original prompt: {prompt}")
+        print(f"Enhanced prompt: {enhanced_prompt}")
         
-        response = client.chat.completions.create(
-            model="stabilityai/stable-diffusion-xl-base-1.0",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            extra_body={
-                "response_format": {"type": "image_url"}
+        # Step 2: Get Pexels API key
+        PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")
+        
+        if not PEXELS_API_KEY:
+            print("PEXELS_API_KEY not found in environment variables")
+            return None
+        
+        # Step 3: Search Pexels with enhanced prompt
+        encoded_query = requests.utils.quote(enhanced_prompt)
+        
+        response = requests.get(
+            f"https://api.pexels.com/v1/search?query={encoded_query}&per_page=5&orientation=square",
+            headers={
+                "Authorization": PEXELS_API_KEY
             },
-            timeout=60
+            timeout=30
         )
         
-        # Extract image URL from response
-        image_content = response.choices[0].message.content
-        
-        if isinstance(image_content, dict) and "image_url" in image_content:
-            image_url = image_content["image_url"]["url"]
-        elif isinstance(image_content, str):
-            image_url = image_content
+        if response.status_code == 200:
+            data = response.json()
+            photos = data.get("photos", [])
+            
+            if photos:
+                # Select a random image from the results
+                selected_photo = random.choice(photos)
+                image_url = selected_photo.get("src", {}).get("large", selected_photo.get("src", {}).get("original"))
+                
+                print(f"✅ Found {len(photos)} images, selected: {image_url}")
+                
+                # Save to database if userId provided
+                if userId and image_url:
+                    user_doc = user_col.find_one({"u_Id": userId})
+                    if user_doc:
+                        print("Saving to DB")
+                        images_col.insert_one({
+                            "user_id": user_doc["_id"],
+                            "prompt": prompt,
+                            "enhanced_prompt": enhanced_prompt,
+                            "image_url": image_url,
+                            "source": "pexels",
+                            "created_at": datetime.datetime.utcnow()
+                        })
+                
+                return image_url
+            else:
+                print(f"No images found for query: {enhanced_prompt}")
+                return None
         else:
-            image_url = str(image_content)
-        
-        # Save to database if userId provided
-        if userId:
-            from app.db.mongodb import user_col, images_col
-            user_doc = user_col.find_one({"u_Id": userId})
-            if user_doc:
-                images_col.insert_one({
-                    "user_id": user_doc["_id"],
-                    "prompt": prompt,
-                    "image_url": image_url,
-                    "created_at": datetime.datetime.utcnow()
-                })
-        
-        return image_url
-        
+            print(f"Pexels API error: {response.status_code} - {response.text}")
+            return None
+            
     except Exception as e:
         print(f"Image generation error: {str(e)}")
         return None
 
 
+def enhance_prompt_with_ai(user_prompt):
+    """
+    Use OpenRouter with Gemma 3B to enhance the user prompt for better Pexels search results
+    """
+    try:
+        # Gemma 3B doesn't support system messages, so we combine everything in user message
+        enhancement_prompt = f"""Convert this craft/artisan product description into a short, optimized search query for finding high-quality craft photos on Pexels.
 
-# import requests
+Rules:
+- Return ONLY the search query, no explanations
+- Keep it under 10 words
+- Focus on visual keywords: materials, colors, style, type of craft
+- Include "handmade" or "craft" if relevant
 
-# HF_API = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
-# HF_TOKEN = os.getenv("HF_TOKEN")
+User description: {user_prompt}
 
-# def generate_image(prompt, userId=None):
-
-#     headers = {"Authorization": f"Bearer {HF_TOKEN}"}
-
-#     response = requests.post(
-#         HF_API,
-#         headers=headers,
-#         json={"inputs": prompt}
-#     )
-
-#     image_bytes = response.content
-#     base64_image = base64.b64encode(image_bytes).decode("utf-8")
-
-#     image_url = f"data:image/png;base64,{base64_image}"
-
-#     return image_url
+Search query:"""
+        
+        response = client.chat.completions.create(
+            model="google/gemma-3-4b-it:free",
+            messages=[
+                {
+                    "role": "user",
+                    "content": enhancement_prompt
+                }
+            ],
+            max_tokens=50,
+            temperature=0.7
+        )
+        
+        enhanced_query = response.choices[0].message.content.strip()
+        
+        # Clean up the response (remove quotes, extra spaces, newlines)
+        enhanced_query = enhanced_query.strip('"').strip("'").strip()
+        
+        # If the enhancement fails or returns empty, use original prompt
+        if not enhanced_query or len(enhanced_query) < 3:
+            print(f"Enhancement returned empty, using original prompt")
+            enhanced_query = user_prompt
+        
+        return enhanced_query
+        
+    except Exception as e:
+        print(f"Prompt enhancement error: {str(e)}")
+        return user_prompt  # Fallback to original prompt
