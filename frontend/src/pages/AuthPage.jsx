@@ -1,33 +1,43 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthForm from '../components/auth/AuthForm.jsx';
 import OtpSlide from '../components/auth/OtpSlide.jsx';
+import CreatePassword from '../components/auth/CreatePassword.jsx';
 import artisanImage from '../assets/authimg.png';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '../api/firebase.js';
 
 const AuthPage = () => {
-  const navigate = useNavigate(); 
-  const [showOtp, setShowOtp] = useState(false);
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const { login } = useAuth();
+  const [step, setStep] = useState('login'); // 'login', 'otp', 'createPassword'
   const [pendingEmail, setPendingEmail] = useState('');
   const [pendingToken, setPendingToken] = useState('');
+  const [pendingUserData, setPendingUserData] = useState(null);
   const [isVerifying, setIsVerifying] = useState(false);
-  const { login } = useAuth();
+  const [isSettingPassword, setIsSettingPassword] = useState(false);
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 
   const handleOtpRequired = (email, token) => {
     console.log("🔐 OTP Required - Email:", email);
-    console.log("🔐 OTP Required - Token:", token.substring(0, 20) + "...");
     setPendingEmail(email);
     setPendingToken(token);
-    setShowOtp(true);
+    setStep('otp');
   };
 
   const handleBackToLogin = () => {
-    console.log("🔙 Back to login clicked");
-    setShowOtp(false);
+    setStep('login');
     setPendingEmail('');
     setPendingToken('');
+    setPendingUserData(null);
+  };
+
+  const handleBackToOtp = () => {
+    setStep('otp');
   };
 
   const handleVerifyOtp = async (otpCode) => {
@@ -36,6 +46,7 @@ const AuthPage = () => {
     console.log("🔢 OTP Code entered:", otpCode);
     
     try {
+      // Call verify OTP endpoint
       const verifyResponse = await fetch(`${API_URL}/auth/google/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -46,8 +57,7 @@ const AuthPage = () => {
       });
 
       const verifyData = await verifyResponse.json();
-      console.log("📡 Verify OTP Response Status:", verifyResponse.status);
-      console.log("📡 Verify OTP Response Data:", verifyData);
+      console.log("📡 Verify OTP Response:", verifyData);
 
       if (!verifyResponse.ok) {
         throw new Error(verifyData.detail || 'Invalid OTP');
@@ -55,7 +65,7 @@ const AuthPage = () => {
 
       console.log("✅ OTP Verified Successfully!");
 
-      // OTP verified! Now complete login with backend
+      // Now complete the login with verified OTP
       const loginResponse = await fetch(`${API_URL}/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -67,29 +77,75 @@ const AuthPage = () => {
       });
 
       const loginData = await loginResponse.json();
-      console.log("📡 Final Login Response:", loginData);
+      console.log("📡 Login Response:", loginData);
 
       if (!loginResponse.ok) {
         throw new Error(loginData.detail || 'Login failed');
       }
 
-      // Set login state
+      // Check if this is a new user (no password set)
+      if (loginData.is_new_user || !loginData.user?.has_password) {
+        console.log("🆕 New user detected, need to create password");
+        setPendingUserData(loginData.user);
+        setStep('createPassword');
+        setIsVerifying(false);
+        return;
+      }
+
+      // Existing user - complete login
       login(loginData.token, loginData.user);
-      console.log("🎉 User logged in successfully!");
+      showToast('Successfully logged in!', 'success');
       navigate('/');
 
     } catch (err) {
       console.error("❌ OTP verification error:", err);
+      showToast(err.message, 'error');
       throw err;
     } finally {
       setIsVerifying(false);
     }
   };
 
-  const handleResendOtp = async () => {
-    console.log("📧 Resending OTP for email:", pendingEmail);
+  const handleSetPassword = async (password) => {
+  setIsSettingPassword(true);
+  try {
+    console.log("🔐 Setting password for new user:", pendingEmail);
+    console.log("🔐 Using stored token:", pendingToken.substring(0, 20) + "...");
     
+    const response = await fetch(`${API_URL}/auth/set-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: pendingEmail,
+        password: password,
+        token: pendingToken  // Use the stored token from initial Google sign-in
+      }),
+    });
+
+    const data = await response.json();
+    console.log("📡 Set password response:", data);
+
+    if (!response.ok) {
+      throw new Error(data.detail || 'Failed to set password');
+    }
+
+    login(data.token, data.user);
+    showToast('Password created successfully! Welcome to CraftSathi!', 'success');
+    navigate('/');
+
+  } catch (err) {
+    console.error("❌ Set password error:", err);
+    showToast(err.message, 'error');
+    throw err;
+  } finally {
+    setIsSettingPassword(false);
+  }
+};
+
+  const handleResendOtp = async () => {
     try {
+      console.log("📧 Resending OTP for:", pendingEmail);
+      
       const response = await fetch(`${API_URL}/auth/google/resend-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -99,8 +155,6 @@ const AuthPage = () => {
       });
 
       const data = await response.json();
-      console.log("📡 Resend OTP Response Status:", response.status);
-      console.log("📡 Resend OTP Response Data:", data);
       
       if (!response.ok) {
         if (response.status === 429) {
@@ -109,10 +163,11 @@ const AuthPage = () => {
         throw new Error(data.detail || 'Failed to resend OTP');
       }
       
-      console.log("✅ OTP resent successfully!");
+      showToast('New OTP sent to your email!', 'success');
       
     } catch (err) {
       console.error("❌ Resend OTP error:", err);
+      showToast(err.message, 'error');
       throw err;
     }
   };
@@ -138,21 +193,21 @@ const AuthPage = () => {
         </div>
 
         {/* Right Panel: Action Area with Slide Animation */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-12 relative">
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-12 overflow-y-auto relative">
           <div className="relative w-full max-w-sm">
-            {/* AuthForm - slides out left when OTP shows */}
+            {/* AuthForm - Login/Register */}
             <div 
               className={`transition-all duration-300 ${
-                showOtp ? 'opacity-0 -translate-x-full absolute inset-0 pointer-events-none' : 'opacity-100 translate-x-0 relative'
+                step !== 'login' ? 'opacity-0 -translate-x-full absolute inset-0 pointer-events-none' : 'opacity-100 translate-x-0 relative'
               }`}
             >
               <AuthForm onOtpRequired={handleOtpRequired} />
             </div>
             
-            {/* OtpSlide - slides in from right when OTP is required */}
+            {/* OtpSlide - OTP Verification */}
             <div 
               className={`transition-all duration-300 ${
-                showOtp ? 'opacity-100 translate-x-0 relative' : 'opacity-0 translate-x-full absolute inset-0 pointer-events-none'
+                step === 'otp' ? 'opacity-100 translate-x-0 relative' : 'opacity-0 translate-x-full absolute inset-0 pointer-events-none'
               }`}
             >
               <OtpSlide
@@ -161,7 +216,22 @@ const AuthPage = () => {
                 onResend={handleResendOtp}
                 onBack={handleBackToLogin}
                 loading={isVerifying}
-                isVisible={showOtp}
+                isVisible={step === 'otp'}
+              />
+            </div>
+
+            {/* CreatePassword - Password Creation for New Users */}
+            <div 
+              className={`transition-all duration-300 ${
+                step === 'createPassword' ? 'opacity-100 translate-x-0 relative' : 'opacity-0 translate-x-full absolute inset-0 pointer-events-none'
+              }`}
+            >
+              <CreatePassword
+                email={pendingEmail}
+                onPasswordSet={handleSetPassword}
+                onBack={handleBackToOtp}
+                loading={isSettingPassword}
+                isVisible={step === 'createPassword'}
               />
             </div>
           </div>

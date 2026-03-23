@@ -9,6 +9,7 @@ import Navbar from './components/layout/Navbar.jsx';
 import AboutPage from './pages/about.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import  Profile  from './components/layout/Profile.jsx';
+import NetworkPage from './components/layout/Network/NetworkPage.jsx';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/mystuff" element={<MyStuff />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/network" element={<NetworkPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </ToastProvider>

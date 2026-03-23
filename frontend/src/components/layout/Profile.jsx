@@ -5,7 +5,7 @@ import {
   Loader2, Camera, Mail, Calendar, Image as ImageIcon, 
   Sparkles, LogOut, Home, Captions, FolderOpen, 
   Info, TrendingUp, Heart, Eye, User, LayoutDashboard,
-  Instagram, Youtube, Send, Phone, AlertCircle
+  AlertCircle
 } from 'lucide-react';
 import Footer from './Footer.jsx';
 
@@ -26,10 +26,8 @@ const Profile = () => {
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 
-  // Debug logs
   console.log("Profile - isAuthenticated:", isAuthenticated);
   console.log("Profile - userData:", userData);
-  console.log("Profile - userData keys:", userData ? Object.keys(userData) : 'no userData');
 
   const fetchUserData = async () => {
     console.log("fetchUserData called");
@@ -50,13 +48,11 @@ const Profile = () => {
     // Try multiple possible field names for user ID
     const userId = userData.u_Id || userData.uid || userData.id || userData.userId;
     console.log("Extracted userId:", userId);
-    console.log("Available fields:", Object.keys(userData));
     
     if (!userId) {
       console.error("No user ID found in userData:", userData);
       setError("User session expired. Please log in again.");
       setLoading(false);
-      // Redirect to login after 2 seconds
       setTimeout(() => navigate('/auth'), 2000);
       return;
     }
@@ -193,7 +189,6 @@ const Profile = () => {
     <div className="min-h-screen bg-gradient-to-br from-brand-bg to-gray-100 flex">
       {/* Fixed Sidebar */}
       <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-xl flex flex-col z-30">
-        {/* Logo */}
         <div className="p-6 border-b border-gray-100">
           <Link to="/" className="text-2xl font-bold font-display text-brand-text">
             CraftSathi
@@ -201,7 +196,6 @@ const Profile = () => {
           <p className="text-xs text-gray-400 mt-1">Artisan Dashboard</p>
         </div>
 
-        {/* Navigation Links */}
         <nav className="flex-1 py-6">
           {sidebarLinks.map((link) => {
             const Icon = link.icon;
@@ -223,7 +217,6 @@ const Profile = () => {
           })}
         </nav>
 
-        {/* Logout Button */}
         <div className="p-6 border-t border-gray-100">
           <button
             onClick={() => setShowLogoutConfirm(true)}
@@ -235,18 +228,16 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Main Content - with margin-left to accommodate fixed sidebar */}
+      {/* Main Content */}
       <div className="flex-1 ml-64 min-h-screen flex flex-col">
         {/* Profile Header */}
         <div className="bg-white shadow-sm border-b border-gray-100">
           <div className="max-w-5xl mx-auto px-6 py-8">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-              {/* Avatar */}
               <div className="w-28 h-28 bg-gradient-to-br from-brand-primary to-brand-primary-hover rounded-full flex items-center justify-center text-white shadow-lg">
                 <Camera size={48} />
               </div>
               
-              {/* User Info */}
               <div className="text-center md:text-left flex-1">
                 <h1 className="text-3xl md:text-4xl font-bold font-display text-brand-text">
                   {userData?.u_name || userData?.name || 'Artisan'}
@@ -266,7 +257,7 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Stats Section - Professional Cards */}
+        {/* Stats Section */}
         <div className="max-w-5xl mx-auto px-6 py-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white rounded-2xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition-shadow">

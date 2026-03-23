@@ -15,14 +15,14 @@ async def register_user(user_data: UserRegisterSchema):
     try:
         print(f"Attempting to register user: {user_data.email}")  # Debug log
         
-        # 🔧 FIX: Create user in Firebase
+        # Create user in Firebase
         try:
             user_record = auth.create_user(
                 email=user_data.email,
                 password=user_data.password,
                 display_name=user_data.name
             )
-            print(f"Firebase user created with UID: {user_record.uid}")  # Debug log
+            print(f"Firebase user created with UID: {user_record.uid}")
         except auth.EmailAlreadyExistsError:
             print(f"Email already exists in Firebase: {user_data.email}")
             raise HTTPException(status_code=400, detail="Email already registered. Please login instead.")
@@ -32,17 +32,22 @@ async def register_user(user_data: UserRegisterSchema):
 
         uid = user_record.uid
 
-        # 🔧 FIX: Store in MongoDB with better error handling
+        # Store in MongoDB with password
         try:
             result = user_col.insert_one({
                 "u_Id": uid,
                 "u_name": user_data.name,
-                "u_mail": user_data.email
+                "u_mail": user_data.email,
+                "u_pwd": user_data.password  # Store plain text password
             })
             print(f"User inserted into MongoDB with ID: {result.inserted_id}")
+            
+            # Get the inserted user document
+            user_doc = user_col.find_one({"_id": result.inserted_id})
+            
         except Exception as mongo_error:
             print(f"MongoDB error: {str(mongo_error)}")
-            # Optional: Delete the Firebase user if MongoDB fails
+            # Delete the Firebase user if MongoDB fails
             try:
                 auth.delete_user(uid)
                 print(f"Deleted Firebase user {uid} due to MongoDB error")
@@ -50,11 +55,18 @@ async def register_user(user_data: UserRegisterSchema):
                 pass
             raise HTTPException(status_code=500, detail=f"Database error: {str(mongo_error)}")
 
-        # 🎟️ Create Firebase custom token
+        # Create Firebase custom token
         token = auth.create_custom_token(uid)
 
         return {
             "token": token.decode("utf-8"),
+            "user": {
+                "uid": uid,
+                "u_Id": uid,
+                "u_name": user_data.name,
+                "u_mail": user_data.email,
+                "id": str(user_doc["_id"])
+            },
             "message": "User registered successfully"
         }
 
@@ -69,50 +81,47 @@ async def register_user(user_data: UserRegisterSchema):
 @router.post("/login")
 async def login_user(user_data: UserLoginSchema):
     try:
-        # 🔐 Verify with Firebase (email/password)
-        url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={settings.FIREBASE_API_KEY}"
-
-        payload = {
-            "email": user_data.email,
-            "password": user_data.password,
-            "returnSecureToken": True
-        }
-
-        response = requests.post(url, json=payload)
-
-        if response.status_code != 200:
-            raise HTTPException(status_code=401, detail="Invalid email or password")
-
-        data = response.json()
-        uid = data["localId"]
-
-        # 🔍 Check MongoDB for existing user
-        user = user_col.find_one({"u_Id": uid})
-
+        email = user_data.email
+        password = user_data.password
+        
+        # 🔍 Find user in MongoDB by email
+        user = user_col.find_one({"u_mail": email})
+        
         if not user:
-            # User exists in Firebase but not in MongoDB
-            # This shouldn't happen with proper registration flow
-            raise HTTPException(
-                status_code=404, 
-                detail="User not found. Please register first."
-            )
-
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # 🔐 Verify password from MongoDB
+        stored_password = user.get("u_pwd")
+        
+        if not stored_password:
+            raise HTTPException(status_code=401, detail="Please login with Google. No password set for this account.")
+        
+        if stored_password != password:
+            raise HTTPException(status_code=401, detail="Invalid password")
+        
+        # Get user details
+        uid = user.get("u_Id")
+        name = user.get("u_name", "")
+        
         # 🎟️ Create custom token for frontend
-        token = auth.create_custom_token(uid)
-
+        custom_token = auth.create_custom_token(uid)
+        
         return {
-            "token": token.decode("utf-8"),
+            "token": custom_token.decode("utf-8"),
             "user": {
+                "uid": uid,
+                "u_Id": uid,
+                "u_name": name,
+                "u_mail": email,
                 "id": str(user["_id"]),
-                "u_Id": user["u_Id"],
-                "u_name": user["u_name"],
-                "u_mail": user["u_mail"]
+                "has_password": True
             }
         }
-
+        
     except HTTPException:
         raise
     except Exception as e:
+        print(f"Login error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     
     
@@ -121,116 +130,132 @@ otp_store = {}
 
 @router.post("/google")
 async def google_login(data: dict):
+    print("🔵 GOOGLE LOGIN ENDPOINT CALLED")
+    print(f"Received data: {data}")
+    
     try:
         token = data.get("token")
         
         if not token:
             raise HTTPException(status_code=400, detail="Token missing")
         
-        # Verify Firebase ID token with clock skew tolerance
+        # Verify Firebase ID token
         decoded = None
-        errors = []
-        
         for skew in [60, 120, 300]:
             try:
                 decoded = auth.verify_id_token(token, clock_skew_seconds=skew)
                 if decoded:
-                    print(f"Token verified with {skew}s clock skew")
                     break
-            except Exception as e:
-                errors.append(f"Skew {skew}s: {str(e)}")
+            except:
                 continue
         
         if not decoded:
-            print(f"All token verification attempts failed: {errors}")
-            raise HTTPException(status_code=401, detail="Invalid token - please sync your system clock")
+            raise HTTPException(status_code=401, detail="Invalid token")
         
         name_from_frontend = data.get("name")
-        
         uid = decoded["uid"]
         email = decoded.get("email", "")
         name = name_from_frontend or decoded.get("name", "")
         
-        # Check if OTP already verified for this session
         otp_verified = data.get("otp_verified", False)
         
-        # Check MongoDB for existing user
+        # Check if user exists
         user = user_col.find_one({"u_Id": uid})
         
-        # If user doesn't exist OR OTP not verified, send OTP
-        if not user or not otp_verified:
-            # Check if we've already sent OTP recently (2-minute cooldown)
-            current_time = datetime.datetime.utcnow()
-            existing_otp = otp_store.get(email)
+        # If OTP is verified, handle user creation/login
+        if otp_verified:
+            print("🔵 OTP IS VERIFIED - PROCESSING LOGIN")
             
-            if existing_otp:
-                last_sent = existing_otp.get("last_sent_at")
-                if last_sent:
-                    time_since_last = (current_time - last_sent).total_seconds()
-                    if time_since_last < 120:  # 2 minutes = 120 seconds
-                        remaining = int(120 - time_since_last)
-                        return {
-                            "requires_otp": True,
-                            "message": f"Please wait {remaining} seconds before requesting a new OTP",
-                            "email": email,
-                            "expires_in": 300,
-                            "cooldown": remaining
-                        }
-            
-            # Generate new 6-digit OTP
-            otp = secrets.token_hex(3)[:6].upper()
-            
-            # Store OTP in memory with 5-minute expiration and track last sent time
-            otp_store[email] = {
-                "otp": otp,
-                "expires_at": current_time + datetime.timedelta(minutes=5),
-                "last_sent_at": current_time,
-                "uid": uid
-            }
-            
-            # Send OTP via email
-            email_sent = send_otp_email(email, otp)
-            
-            if email_sent:
+            if not user:
+                # NEW USER - CREATE IN DATABASE
+                print("🆕 CREATING NEW USER IN DATABASE")
+                result = user_col.insert_one({
+                    "u_Id": uid,
+                    "u_name": name,
+                    "u_mail": email,
+                    "u_pwd": None,
+                    "created_at": datetime.datetime.utcnow()
+                })
+                print(f"✅ User created with ID: {result.inserted_id}")
+                user_doc = user_col.find_one({"_id": result.inserted_id})
+                
+                # Clean up OTP from memory
+                if email in otp_store:
+                    del otp_store[email]
+                
+                # Create custom token
+                custom_token = auth.create_custom_token(uid)
+                
                 return {
-                    "requires_otp": True,
-                    "message": "OTP sent to your email",
-                    "email": email,
-                    "expires_in": 300,
-                    "cooldown": 120
+                    "token": custom_token.decode("utf-8"),
+                    "is_new_user": True,
+                    "user": {
+                        "uid": uid,
+                        "u_Id": uid,
+                        "u_name": name,
+                        "u_mail": email,
+                        "id": str(user_doc["_id"]),
+                        "has_password": False
+                    }
                 }
             else:
+                # EXISTING USER - JUST LOGIN
+                print(f"✅ Existing user found: {email}")
+                user_doc = user
+                
+                custom_token = auth.create_custom_token(uid)
+                
+                if email in otp_store:
+                    del otp_store[email]
+                
                 return {
-                    "requires_otp": True,
-                    "message": "Failed to send OTP. Please try again.",
-                    "email": email,
-                    "expires_in": 300
+                    "token": custom_token.decode("utf-8"),
+                    "user": {
+                        "uid": uid,
+                        "u_Id": uid,
+                        "u_name": user_doc.get("u_name", name),
+                        "u_mail": user_doc.get("u_mail", email),
+                        "id": str(user_doc["_id"]),
+                        "has_password": user_doc.get("u_pwd") is not None
+                    }
                 }
         
-        # If OTP is verified or user exists and OTP not required, proceed with login
-        if not user:
-            user_col.insert_one({
-                "u_Id": uid,
-                "u_name": name,
-                "u_mail": email
-            })
+        # Step 2: OTP not verified - send OTP
+        print("🔵 OTP NOT VERIFIED - SENDING OTP")
+        current_time = datetime.datetime.utcnow()
+        existing_otp = otp_store.get(email)
         
-        # Create custom token
-        custom_token = auth.create_custom_token(uid)
+        # Check cooldown
+        if existing_otp and existing_otp.get("last_sent_at"):
+            time_since_last = (current_time - existing_otp["last_sent_at"]).total_seconds()
+            if time_since_last < 120:
+                remaining = int(120 - time_since_last)
+                return {
+                    "requires_otp": True,
+                    "message": f"Please wait {remaining} seconds",
+                    "email": email,
+                    "expires_in": 300,
+                    "cooldown": remaining
+                }
         
-        # Clean up OTP from memory if exists
-        if email in otp_store:
-            del otp_store[email]
+        # Generate and send new OTP
+        otp = secrets.token_hex(3)[:6].upper()
+        otp_store[email] = {
+            "otp": otp,
+            "expires_at": current_time + datetime.timedelta(minutes=5),
+            "last_sent_at": current_time,
+            "uid": uid,
+            "name": name
+        }
+        
+        send_otp_email(email, otp)
         
         return {
-            "token": custom_token.decode("utf-8"),
-            "user": {
-                "uid": uid,
-                "u_Id": uid,  # Make sure u_Id is included
-                "u_name": name,
-                "u_mail": email,
-                "id": str(user["_id"]) if user else None
-            }
+            "requires_otp": True,
+            "message": "OTP sent to your email",
+            "email": email,
+            "expires_in": 300,
+            "cooldown": 120
         }
         
     except HTTPException:
@@ -238,7 +263,6 @@ async def google_login(data: dict):
     except Exception as e:
         print(f"Google login error: {str(e)}")
         raise HTTPException(status_code=401, detail=str(e))
-
 
 @router.post("/google/resend-otp")
 async def resend_otp(data: dict):
@@ -330,4 +354,68 @@ async def verify_google_otp(data: dict):
         raise
     except Exception as e:
         print(f"OTP verification error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@router.post("/set-password")
+async def set_password(data: dict):
+    print("🔐 SET PASSWORD ENDPOINT CALLED")
+    print(f"Received data: {data}")
+    
+    try:
+        email = data.get("email")
+        password = data.get("password")
+        token = data.get("token")
+        
+        if not email or not password:
+            raise HTTPException(status_code=400, detail="Email and password required")
+        
+        if not token:
+            raise HTTPException(status_code=400, detail="Token required")
+        
+        # Verify the Firebase token
+        decoded = auth.verify_id_token(token)
+        token_uid = decoded["uid"]
+        print(f"✅ Token verified - UID from token: {token_uid}")
+        
+        # Find user by EMAIL (not by UID)
+        user = user_col.find_one({"u_mail": email})
+        print(f"🔍 User found by email: {user is not None}")
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get the stored UID from the user document
+        stored_uid = user.get("u_Id")
+        print(f"📦 Stored UID: {stored_uid}")
+        print(f"🔑 Token UID: {token_uid}")
+        
+        # Update user with password (using the stored UID)
+        result = user_col.update_one(
+            {"u_mail": email},
+            {"$set": {"u_pwd": password}}
+        )
+        
+        print(f"📊 Update result - matched: {result.matched_count}, modified: {result.modified_count}")
+        
+        user_doc = user_col.find_one({"u_mail": email})
+        
+        # Create custom token using the stored UID (not the token UID)
+        custom_token = auth.create_custom_token(stored_uid)
+        
+        return {
+            "token": custom_token.decode("utf-8"),
+            "user": {
+                "uid": stored_uid,
+                "u_Id": stored_uid,
+                "u_name": user_doc.get("u_name"),
+                "u_mail": user_doc.get("u_mail"),
+                "id": str(user_doc["_id"])
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Set password error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

@@ -27,7 +27,9 @@ app.include_router(ai_routes.router)
 app.include_router(image_routes.router)
 app.include_router(profile.router)
 app.include_router(explore.router)
-
+# print("Registered routes:")
+# for route in app.routes:
+#     print(f"  {route.path}")
 
 @app.get("/")
 def read_root():

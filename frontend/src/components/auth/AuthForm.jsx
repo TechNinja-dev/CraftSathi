@@ -39,75 +39,64 @@ const AuthForm = ({ onOtpRequired }) => {
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setError('');
+  event.preventDefault();
+  setLoading(true);
+  setError('');
 
-    try {
-      if (isLoginMode) {
-        const userCred = await signInWithEmailAndPassword(auth, email, password);
-        const token = await userCred.user.getIdToken();
-        
-        const response = await fetch(`${API_URL}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        });
+  try {
+    if (isLoginMode) {
+      // LOGIN with email/password - call your backend directly, NOT Firebase
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (!response.ok) {
-          throw new Error(data.detail || 'Authentication failed');
-        }
-
-        login(data.token, data.user);
-        
-        const userName = data.user?.u_name || email.split('@')[0];
-        navigate('/');
-        setTimeout(() => {
-          showToast(`Welcome back, ${userName}!`, 'success');
-        }, 100);
-        
-      } else {
-        const response = await fetch(`${API_URL}/auth/register`, { 
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, name }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.detail || 'Registration failed');
-        }
-
-        login(data.token, data.user);
-        
-        const userName = name;
-        navigate('/');
-        setTimeout(() => {
-          showToast(`Successfully registered! Welcome to CraftSathi, ${userName}!`, 'success');
-        }, 100);
+      if (!response.ok) {
+        throw new Error(data.detail || 'Authentication failed');
       }
 
-    } catch (err) {
-      if (err.code === 'auth/user-not-found') {
-        setError('User not found. Please register first.');
-        showToast('User not found. Please register first.', 'error');
-      } else if (err.code === 'auth/wrong-password') {
-        setError('Invalid password. Please try again.');
-        showToast('Invalid password. Please try again.', 'error');
-      } else if (err.code === 'auth/invalid-email') {
-        setError('Invalid email format.');
-        showToast('Invalid email format.', 'error');
-      } else {
-        setError(err.message);
-        showToast(err.message, 'error');
+      // Use custom login function
+      login(data.token, data.user);
+      
+      const userName = data.user?.u_name || email.split('@')[0];
+      navigate('/');
+      setTimeout(() => {
+        showToast(`Welcome back, ${userName}!`, 'success');
+      }, 100);
+      
+    } else {
+      // REGISTER - create user in your backend
+      const response = await fetch(`${API_URL}/auth/register`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Registration failed');
       }
-    } finally {
-      setLoading(false);
+
+      login(data.token, data.user);
+      
+      const userName = name;
+      navigate('/');
+      setTimeout(() => {
+        showToast(`Successfully registered! Welcome to CraftSathi, ${userName}!`, 'success');
+      }, 100);
     }
-  };
+
+  } catch (err) {
+    setError(err.message);
+    showToast(err.message, 'error');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
@@ -120,6 +109,7 @@ const AuthForm = ({ onOtpRequired }) => {
       const displayName = result.user.displayName;
       const userEmail = result.user.email;
       
+      // Sign out from Firebase immediately
       await auth.signOut();
       
       console.log("Google sign-in successful, calling backend...");
@@ -143,6 +133,7 @@ const AuthForm = ({ onOtpRequired }) => {
         return;
       }
 
+      // If OTP not required, complete login
       login(data.token, data.user);
       
       const userName = data.user?.u_name || displayName || userEmail.split('@')[0];
