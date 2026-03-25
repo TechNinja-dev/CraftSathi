@@ -48,7 +48,16 @@ const Photo = () => {
       }
 
       const data = await response.json();
-      setGeneratedImageUrl(data.image_url);
+      if (data.image_url){
+        setGeneratedImageUrl(data.image_url);
+      }else if (data.message)
+        {
+          setError(data.message);
+        }
+      else
+        {
+          setError("Failed to generate image");
+        }
       
     } catch (err) {
       console.error('Error generating image:', err);
