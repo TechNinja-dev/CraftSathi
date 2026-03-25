@@ -1,11 +1,13 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class PhotoRequest(BaseModel):
     prompt: str
     userId: str | None = None
 
 class PhotoResponse(BaseModel):
-    image_url: str
+    image_url: Optional[str] = None
+    message: Optional[str] = None
 
 class MyStuffResponse(BaseModel):
     images: list

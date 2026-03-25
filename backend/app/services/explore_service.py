@@ -21,27 +21,28 @@ def get_explore_posts(userId=None, limit=20, page=1):
             
             posts_cursor = explore_cols.find(query).sort("created_at", -1).skip(skip).limit(limit)
             
-            posts = []
-            for post in posts_cursor:
-                posts.append({
-                    "id": str(post["_id"]),
-                    "user_id": post.get("user_id", ""),
-                    "user_name": post.get("user_name", "Artisan"),
-                    "user_avatar": post.get("user_avatar", ""),
-                    "prompt": post.get("prompt", ""),
-                    "image_url": post.get("image_url", ""),
-                    "likes": post.get("likes", 0),
-                    "comments": post.get("comments", 0),
-                    "created_at": post.get("created_at", datetime.utcnow()).isoformat() if post.get("created_at") else datetime.utcnow().isoformat()
-                })
-            
-            return {
-                "posts": posts,
-                "total": total_posts,
-                "page": page,
-                "limit": limit,
-                "has_more": (skip + limit) < total_posts
-            }
+            if posts_cursor:
+                posts = []
+                for post in posts_cursor:
+                    posts.append({
+                        "id": str(post["_id"]),
+                        "user_id": post.get("user_id", ""),
+                        "user_name": post.get("user_name", "Artisan"),
+                        "user_avatar": post.get("user_avatar", ""),
+                        "prompt": post.get("prompt", ""),
+                        "image_url": post.get("image_url", ""),
+                        "likes": post.get("likes", 0),
+                        "comments": post.get("comments", 0),
+                        "created_at": post.get("created_at", datetime.utcnow()).isoformat() if post.get("created_at") else datetime.utcnow().isoformat()
+                    })
+
+                return {
+                    "posts": posts,
+                    "total": total_posts,
+                    "page": page,
+                    "limit": limit,
+                    "has_more": (skip + limit) < total_posts
+                }
             
         else:
             # Not logged in - fetch dummy posts from dummy_cols

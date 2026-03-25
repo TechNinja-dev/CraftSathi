@@ -114,46 +114,42 @@ def generate_image(prompt, userId=None):
     Enhance user prompt using AI, then fetch craft images from Pexels API
     """
     try:
+        ensured=prompt_filter(prompt)
+        if ensured!=True:
+            return {"message":ensured}
         # Step 1: Enhance the user prompt using OpenRouter
         enhanced_prompt = enhance_prompt_with_ai(prompt)
         print(f"Original prompt: {prompt}")
         print(f"Enhanced prompt: {enhanced_prompt}")
         
-        # Step 2: Get Pexels API key
-        PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")
+        # Get Model and API key
+        pollen_key = os.getenv("pollen_key")
+        model=os.getenv("pollen_model")
         
-        if not PEXELS_API_KEY:
-            print("PEXELS_API_KEY not found in environment variables")
+        if not pollen_key:
+            print("API_KEY not found in environment variables")
             return None
         
-        # Step 3: Search Pexels with enhanced prompt
+        # Searching with enhanced prompt
         encoded_query = requests.utils.quote(enhanced_prompt)
         
         response = requests.get(
-            f"https://api.pexels.com/v1/search?query={encoded_query}&per_page=5&orientation=square",
-            headers={
-                "Authorization": PEXELS_API_KEY
-            },
+            f"https://gen.pollinations.ai/image/{encoded_query}?model={model}&width=1024&height=1024&seed=0&enhance=false&key={pollen_key}",
             timeout=30
         )
         
         if response.status_code == 200:
-            data = response.json()
-            photos = data.get("photos", [])
+            image_url = f"https://gen.pollinations.ai/image/{encoded_query}?model={model}&width=1024&height=1024&seed=0&enhance=false&key={pollen_key}"
             
-            if photos:
-                # Select a random image from the results
-                selected_photo = random.choice(photos)
-                image_url = selected_photo.get("src", {}).get("large", selected_photo.get("src", {}).get("original"))
-                
-                print(f"✅ Found {len(photos)} images, selected: {image_url}")
-                
+            print(f"✅ Image generated successfully: {image_url}")
+            
+            if image_url:
                 # Save to database if userId provided
-                print(f"🔍 Before condition check:")
-                print(f"   - userId: {userId} (type: {type(userId)})")
-                print(f"   - image_url: {image_url} (type: {type(image_url)})")
-                print(f"   - userId is True: {bool(userId)}")
-                print(f"   - image_url is True: {bool(image_url)}")
+                # print(f"🔍 Before condition check:")
+                # print(f"   - userId: {userId} (type: {type(userId)})")
+                # print(f"   - image_url: {image_url} (type: {type(image_url)})")
+                # print(f"   - userId is True: {bool(userId)}")
+                # print(f"   - image_url is True: {bool(image_url)}")
                 if userId and image_url:
                     print("Got user",userId,"image_url",image_url)
                     user_doc = user_col.find_one({"u_Id": userId})
@@ -165,7 +161,6 @@ def generate_image(prompt, userId=None):
                             "prompt": prompt,
                             "enhanced_prompt": enhanced_prompt,
                             "image_url": image_url,
-                            "source": "pexels",
                             "created_at": datetime.datetime.utcnow()
                         })
                         print("saved to DB")
@@ -175,12 +170,38 @@ def generate_image(prompt, userId=None):
                 print(f"No images found for query: {enhanced_prompt}")
                 return None
         else:
-            print(f"Pexels API error: {response.status_code} - {response.text}")
+            print(f"API error: {response.status_code} - {response.text}")
             return None
             
     except Exception as e:
         print(f"Image generation error: {str(e)}")
         return None
+
+def prompt_filter(prompt):
+    nsfw=os.getenv("NSFW_KEYWORDS").split(',')
+    people=os.getenv("PEOPLE_KEYWORDS").split(",")
+    banned_domain=os.getenv("BANNED_DOMAINS").split(",")
+    craft_keywords=os.getenv("CRAFT_KEYWORDS")
+    # 🚫 Block NSFW immediately
+    prompt_lower=prompt.lower()
+    if any(word in prompt_lower for word in nsfw):
+        return "Sorry, we cannot generate this type of content."
+    
+    # 🚫 Block people-related prompts (unless craft context)
+    if any(word in prompt_lower for word in people):
+        if not any(word in prompt_lower for word in craft):
+            return "Sorry, we only support craft and handmade product related images."
+        
+    # 🚫 Block unrelated domains
+    if any(word in prompt_lower for word in banned_domain):
+        return "Sorry, please provide a craft or handmade related prompt."
+    
+    # 🚫 If no craft context at all → reject
+    if not any(word in prompt_lower for word in craft_keywords):
+        return "Sorry, this tool only supports craft and art related prompts."
+    
+    return True
+    
 
 
 def enhance_prompt_with_ai(user_prompt):
@@ -189,17 +210,19 @@ def enhance_prompt_with_ai(user_prompt):
     """
     try:
         # Gemma 3B doesn't support system messages, so we combine everything in user message
-        enhancement_prompt = f"""Convert this craft/artisan product description into a short, optimized search query for finding high-quality craft photos on Pexels.
+        enhancement_prompt = f"""Convert this craft/artisan product description into a clear, natural, and visually descriptive image prompt for high-quality craft photos.
 
-Rules:
-- Return ONLY the search query, no explanations
-- Keep it under 10 words
-- Focus on visual keywords: materials, colors, style, type of craft
-- Include "handmade" or "craft" if relevant
+            Rules:
+            - Return ONLY the final prompt, no explanations
+            - Keep it concise but in full sentence form
+            - Do NOT use comma-separated keywords
+            - Preserve the original meaning and intent
+            - Slightly enhance with relevant visual details (materials, colors, style)
+            - Keep it suitable for image generation
 
-User description: {user_prompt}
+            User description: {user_prompt}
 
-Search query:"""
+            Enhanced prompt:"""
         
         response = client.chat.completions.create(
             model="google/gemma-3-4b-it:free",

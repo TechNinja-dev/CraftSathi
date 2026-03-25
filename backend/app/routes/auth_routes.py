@@ -38,7 +38,8 @@ async def register_user(user_data: UserRegisterSchema):
                 "u_Id": uid,
                 "u_name": user_data.name,
                 "u_mail": user_data.email,
-                "u_pwd": user_data.password  # Store plain text password
+                "u_pwd": user_data.password,
+                "created_at": datetime.datetime.utcnow() # Store plain text password
             })
             print(f"User inserted into MongoDB with ID: {result.inserted_id}")
             

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from datetime import datetime
-from app.db.mongodb import user_col, images_col
+from app.db.mongodb import user_col, images_col,explore_dash_col
 
 router = APIRouter()
 
@@ -61,4 +61,88 @@ async def get_profile(userId: str):
         raise
     except Exception as e:
         print(f"Profile fetch error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/api/profile/update")
+async def update_profile(data: dict):
+    try:
+        userId = data.get("userId")
+        profile = data.get("profile")
+        
+        if not userId:
+            raise HTTPException(status_code=400, detail="User ID required")
+        
+        # Update user's dashboard collection
+        result = explore_dash_col.update_one(
+            {"u_Id": userId},
+            {"$set": {
+                "u_name":profile.get("name"),
+                "avatar": profile.get("avatar"),
+                "country": profile.get("country"),
+                "bio": profile.get("bio"),
+                "specialties": profile.get("specialties", []),
+                "instagram": profile.get("instagram"),
+                "youtube": profile.get("youtube"),
+                "website": profile.get("website"),
+                "experience": profile.get("experience"),
+                "favoriteMaterials": profile.get("favoriteMaterials", [])
+            }},
+            upsert=True
+        )
+        user_col.update_one(
+            {"u_Id": userId},
+            {"$set": {"u_name": profile.get("name")}}
+        )
+        
+        return {
+            "success": True,
+            "profile": profile
+        }
+        
+    except Exception as e:
+        print(f"Profile update error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@router.put("/api/profile/update-avatar")
+async def update_avatar(data: dict):
+    try:
+        userId = data.get("userId")
+        avatar = data.get("avatar")
+        
+        if not userId:
+            raise HTTPException(status_code=400, detail="User ID required")
+        
+        result = explore_dash_col.update_one(
+            {"u_Id": userId},
+            {"$set": {"avatar": avatar}},
+            upsert=True
+        )
+        
+        return {"success": True, "avatar": avatar}
+        
+    except Exception as e:
+        print(f"Avatar update error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/api/profile/remove-avatar")
+async def remove_avatar(data: dict):
+    try:
+        userId = data.get("userId")
+        
+        if not userId:
+            raise HTTPException(status_code=400, detail="User ID required")
+        
+        result = explore_dash_col.update_one(
+            {"u_Id": userId},
+            {"$set": {"avatar": None}},
+            upsert=True
+        )
+        
+        return {"success": True}
+        
+    except Exception as e:
+        print(f"Avatar removal error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

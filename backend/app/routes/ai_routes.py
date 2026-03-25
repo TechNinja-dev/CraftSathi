@@ -16,7 +16,9 @@ async def generate_content(file: UploadFile = File(...)):
 
 @router.post("/generate-photo", response_model=PhotoResponse)
 async def generate_photo(request: PhotoRequest):
-    image_url = generate_image(request.prompt, request.userId)
-    if not image_url:
+    result = generate_image(request.prompt, request.userId)
+    if isinstance(result, dict) and "message" in result:
+        return result
+    if not result:
         raise HTTPException(status_code=500, detail="Image generation failed")
-    return {"image_url": image_url}
+    return {"image_url": result}
