@@ -15,6 +15,9 @@ async def get_profile(userId: str):
         if not user_doc:
             raise HTTPException(status_code=404, detail="User not found")
         
+        # Fetch profile data from explore_dash_col
+        profile_doc = explore_dash_col.find_one({"u_Id": userId})
+        
         # Fetch all user's images/posts
         cursor = images_col.find(
             {"user_id": user_doc["_id"]}
@@ -45,12 +48,27 @@ async def get_profile(userId: str):
         # Get member since date (when user first registered)
         member_since = user_doc.get("created_at", datetime.utcnow())
         
+        # Build profile data with fallbacks
+        profile_data = {
+            "name": profile_doc.get("u_name") if profile_doc else user_doc.get("u_name"),
+            "avatar": profile_doc.get("avatar") if profile_doc else None,
+            "country": profile_doc.get("country") if profile_doc else "",
+            "bio": profile_doc.get("bio") if profile_doc else "",
+            "specialties": profile_doc.get("specialties") if profile_doc else [],
+            "instagram": profile_doc.get("instagram") if profile_doc else "",
+            "youtube": profile_doc.get("youtube") if profile_doc else "",
+            "website": profile_doc.get("website") if profile_doc else "",
+            "experience": profile_doc.get("experience") if profile_doc else "",
+            "favoriteMaterials": profile_doc.get("favoriteMaterials") if profile_doc else []
+        }
+        
         return {
             "user": {
                 "name": user_doc.get("u_name"),
                 "email": user_doc.get("u_mail"),
                 "u_Id": user_doc.get("u_Id")
             },
+            "profile": profile_data,
             "posts": posts,
             "totalCaptions": total_captions,
             "totalImages": total_images,
