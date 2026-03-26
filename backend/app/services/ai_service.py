@@ -189,7 +189,7 @@ def prompt_filter(prompt):
     
     # 🚫 Block people-related prompts (unless craft context)
     if any(word in prompt_lower for word in people):
-        if not any(word in prompt_lower for word in craft):
+        if not any(word in prompt_lower for word in craft_keywords):
             return "Sorry, we only support craft and handmade product related images."
         
     # 🚫 Block unrelated domains
