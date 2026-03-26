@@ -141,7 +141,7 @@ const WelcomePage = () => {
         <p className="text-gray-600 mb-4">
             Save your creations and build a professional portfolio to show off your work to the world and attract more customers.
         </p>
-        <Link to="/mystuff" className="text-brand-primary font-semibold hover:underline">
+        <Link to="/profile" className="text-brand-primary font-semibold hover:underline">
             View Portfolio
         </Link>
     </div>

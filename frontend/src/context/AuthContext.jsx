@@ -56,6 +56,14 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
+    // Clear image generation related items
+    localStorage.removeItem('lastGeneratedImage');
+    localStorage.removeItem('lastPrompt');
+    
+    // Clear caption generation related items
+    localStorage.removeItem('lastPreviewUrl');
+    localStorage.removeItem('lastCaptions');
+    
     setIsAuthenticated(false);
     setUserData(null);
     auth.signOut();

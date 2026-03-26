@@ -189,34 +189,66 @@ const handleRemoveAvatar = async () => {
     setShowEditModal(true);
   };
 
-  const handleSaveProfile = async () => {
-    setSaving(true);
-    try {
-      const userId = userData.u_Id || userData.uid;
-      
-      const response = await fetch(`${API_URL}/api/profile/update`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: userId,
-          profile: formData
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
-      }
-
-      const data = await response.json();
-      setProfileData(data.profile);
-      setShowEditModal(false);
-    } catch (err) {
-      console.error('Error updating profile:', err);
-      setError(err.message);
-    } finally {
-      setSaving(false);
+// Add this helper function
+const prepareUpdatedProfile = () => {
+  const updated = {};
+  
+  // Define all fields and their default values
+  const fields = [
+    { key: 'name', default: profileData.name || '' },
+    { key: 'avatar', default: profileData.avatar || null },
+    { key: 'country', default: profileData.country || '' },
+    { key: 'bio', default: profileData.bio || '' },
+    { key: 'specialties', default: profileData.specialties || [] },
+    { key: 'instagram', default: profileData.instagram || '' },
+    { key: 'youtube', default: profileData.youtube || '' },
+    { key: 'website', default: profileData.website || '' },
+    { key: 'experience', default: profileData.experience || '' },
+    { key: 'favoriteMaterials', default: profileData.favoriteMaterials || [] }
+  ];
+  
+  fields.forEach(field => {
+    // If formData has a value (including empty string), use it, otherwise use existing
+    if (formData[field.key] !== undefined) {
+      updated[field.key] = formData[field.key];
+    } else if (field.default !== undefined) {
+      updated[field.key] = field.default;
     }
-  };
+  });
+  
+  return updated;
+};
+
+const handleSaveProfile = async () => {
+  setSaving(true);
+  try {
+    const userId = userData.u_Id || userData.uid;
+    
+    const updatedProfile = prepareUpdatedProfile();
+    
+    const response = await fetch(`${API_URL}/api/profile/update`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: userId,
+        profile: updatedProfile
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update profile');
+    }
+
+    const data = await response.json();
+    setProfileData(data.profile);
+    setShowEditModal(false);
+  } catch (err) {
+    console.error('Error updating profile:', err);
+    setError(err.message);
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));

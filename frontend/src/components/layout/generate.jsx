@@ -3,10 +3,16 @@ import { ImagePlus, Loader2, Copy, Check } from 'lucide-react';
 import Footer from './Footer.jsx';
 
 const Generate = () => {
+  // Load from localStorage on mount
   const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(() => {
+    return localStorage.getItem('lastPreviewUrl') || null;
+  });
   const [loading, setLoading] = useState(false);
-  const [captions, setCaptions] = useState([]);
+  const [captions, setCaptions] = useState(() => {
+    const savedCaptions = localStorage.getItem('lastCaptions');
+    return savedCaptions ? JSON.parse(savedCaptions) : [];
+  });
   const [error, setError] = useState('');
   const [copiedIndex, setCopiedIndex] = useState(null);
 
@@ -16,8 +22,11 @@ const Generate = () => {
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      localStorage.setItem('lastPreviewUrl', url);
       setCaptions([]);
+      localStorage.removeItem('lastCaptions');
       setError('');
     }
   };
@@ -47,16 +56,22 @@ const Generate = () => {
       }
 
       const data = await response.json();
+      let captionsArray = [];
+      
       if (Array.isArray(data.message)) {
-        setCaptions(data.message);
+        captionsArray = data.message;
       } else if (typeof data.message === 'string') {
         try {
           const parsed = JSON.parse(data.message);
-          setCaptions(Array.isArray(parsed) ? parsed : [data.message]);
+          captionsArray = Array.isArray(parsed) ? parsed : [data.message];
         } catch {
-          setCaptions([data.message]);
+          captionsArray = [data.message];
         }
       }
+      
+      setCaptions(captionsArray);
+      // Save to localStorage
+      localStorage.setItem('lastCaptions', JSON.stringify(captionsArray));
       
     } catch (err) {
       console.error('Error:', err);
@@ -185,7 +200,6 @@ const Generate = () => {
         </div>
       </div>
       
-      {/* Footer - Place it here, outside the flex-grow div but inside the main flex column */}
       <Footer />
     </div>
   );
