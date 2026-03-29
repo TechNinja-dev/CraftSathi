@@ -8,13 +8,13 @@ const Photo = () => {
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
-  const [prompt, setPrompt] = useState(() => {
-    return localStorage.getItem('lastPrompt') || '';
-  });
+const [prompt, setPrompt] = useState(() => {
+  return sessionStorage.getItem('lastPrompt') || '';
+});
 
-  const [generatedImageUrl, setGeneratedImageUrl] = useState(() => {
-    return localStorage.getItem('lastGeneratedImage') || '';
-  });
+const [generatedImageUrl, setGeneratedImageUrl] = useState(() => {
+  return sessionStorage.getItem('lastGeneratedImage') || '';
+});
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -50,8 +50,10 @@ const Photo = () => {
       const data = await response.json();
       if (data.image_url){
         setGeneratedImageUrl(data.image_url);
-        localStorage.setItem('lastGeneratedImage', data.image_url);
-        localStorage.setItem('lastPrompt', prompt);
+          localStorage.setItem('lastGeneratedImage', data.image_url);
+          sessionStorage.setItem('lastGeneratedImage', data.image_url); // Add this
+          localStorage.setItem('lastPrompt', prompt);
+          sessionStorage.setItem('lastPrompt', prompt); 
       } else if (data.message) {
         setError(data.message);
       } else {

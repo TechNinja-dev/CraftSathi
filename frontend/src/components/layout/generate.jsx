@@ -6,11 +6,11 @@ const Generate = () => {
   // Load from localStorage on mount
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(() => {
-    return localStorage.getItem('lastPreviewUrl') || null;
+    return sessionStorage.getItem('lastPreviewUrl') || null;
   });
   const [loading, setLoading] = useState(false);
   const [captions, setCaptions] = useState(() => {
-    const savedCaptions = localStorage.getItem('lastCaptions');
+    const savedCaptions = sessionStorage.getItem('lastCaptions');
     return savedCaptions ? JSON.parse(savedCaptions) : [];
   });
   const [error, setError] = useState('');

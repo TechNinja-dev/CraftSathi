@@ -54,20 +54,20 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    // Clear all user-related localStorage
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
-    // Clear image generation related items
-    localStorage.removeItem('lastGeneratedImage');
-    localStorage.removeItem('lastPrompt');
+
+    localStorage.clear()
     
-    // Clear caption generation related items
-    localStorage.removeItem('lastPreviewUrl');
-    localStorage.removeItem('lastCaptions');
+    // Clear ALL app-specific data
+    sessionStorage.clear();
     
     setIsAuthenticated(false);
     setUserData(null);
     auth.signOut();
   };
+
 
   const value = {
     user,
