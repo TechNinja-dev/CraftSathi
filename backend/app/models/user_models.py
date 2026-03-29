@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-
+from typing import Optional
 class UserRegisterSchema(BaseModel):
     name: str
     email: EmailStr
@@ -14,3 +14,14 @@ class TokenResponse(BaseModel):
 
 class GoogleAuthSchema(BaseModel):
     token: str
+    
+
+class SaveCaptionRequest(BaseModel):
+    userId: str
+    caption: str
+    image_url: Optional[str] = None
+
+class GetCaptionsRequest(BaseModel):
+    userId: str
+    limit: int = 50
+    page: int = 1

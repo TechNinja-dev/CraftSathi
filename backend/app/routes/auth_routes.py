@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from firebase_admin import auth
-from app.db.mongodb import user_col
+from app.db.mongodb import user_col,users_dash_col
 from app.models.user_models import *
 import requests
 from app.core.config import settings
@@ -41,6 +41,22 @@ async def register_user(user_data: UserRegisterSchema):
                 "u_pwd": user_data.password,
                 "created_at": datetime.datetime.utcnow() # Store plain text password
             })
+            users_dash_col.insert_one({
+                "u_Id": uid,
+                "u_name":user_data.name,
+                "u_mail":user_data.email,
+                "avatar":"",
+                "country": "",
+                "bio": "",
+                "specialties": [],
+                "instagram": "",
+                "youtube": "",
+                "website": "",
+                "experience":"",
+                "favoriteMaterials": [],
+                "total_captions_generated":0,
+                "total_images_generated":0
+                })
             print(f"User inserted into MongoDB with ID: {result.inserted_id}")
             
             # Get the inserted user document
@@ -177,6 +193,22 @@ async def google_login(data: dict):
                     "u_pwd": None,
                     "created_at": datetime.datetime.utcnow()
                 })
+                users_dash_col.insert_one({
+                    "u_Id": uid,
+                    "u_name":user_data.name,
+                    "u_mail":user_data.email,
+                    "avatar":"",
+                    "country": "",
+                    "bio": "",
+                    "specialties": [],
+                    "instagram": "",
+                    "youtube": "",
+                    "website": "",
+                    "experience":"",
+                    "favoriteMaterials": [],
+                    "total_captions_generated":0,
+                    "total_images_generated":0
+                    })
                 print(f"✅ User created with ID: {result.inserted_id}")
                 user_doc = user_col.find_one({"_id": result.inserted_id})
                 

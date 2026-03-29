@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from bson import ObjectId
-from app.db.mongodb import user_col, images_col
+from app.db.mongodb import user_col, images_col,users_dash_col
 from app.models.ai_models import MyStuffResponse
 
 router = APIRouter(prefix="/api", tags=["Images"])
@@ -46,6 +46,12 @@ async def delete_image(imageId: str, userId: str):
 
         if result.deleted_count == 0:
             raise HTTPException(status_code=404, detail="Image not found")
+        
+        users_dash_col.update_one(
+            {"u_Id": userId},
+            {"$inc": {"total_images_generated": -1}},
+            upsert=True
+        )
 
         return {"message": "Image deleted successfully"}
 

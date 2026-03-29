@@ -3,12 +3,11 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import base64
-from app.db.mongodb import user_col,images_col
+from app.db.mongodb import user_col,images_col,users_dash_col
 import datetime
 import requests
 from huggingface_hub import InferenceClient
 import random
-
 load_dotenv()
 
 client = OpenAI(
@@ -16,7 +15,7 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY"),
 )
 
-def generate_caption(image_bytes, content_type):
+def generate_caption(image_bytes, content_type, userId=None ):
     """
     Generate 5 different social media captions for the product image
     """
@@ -64,7 +63,19 @@ Generate captions based on what you see in the image."""
         )
         
         raw_response = completion.choices[0].message.content
-        return process_description(raw_response)
+        captions = process_description(raw_response)
+        
+        # Increment total_captions_generated counter in users_dash
+        print(userId)
+        if userId:
+            users_dash_col.update_one(
+                {"u_Id": userId},
+                {"$inc": {"total_captions_generated": 5}},  # Increment by 5 captions
+                upsert=True
+            )
+            print("Saved captions to DB")
+        
+        return captions
         
     except Exception as e:
         print(e)
@@ -145,11 +156,6 @@ def generate_image(prompt, userId=None):
             
             if image_url:
                 # Save to database if userId provided
-                # print(f"🔍 Before condition check:")
-                # print(f"   - userId: {userId} (type: {type(userId)})")
-                # print(f"   - image_url: {image_url} (type: {type(image_url)})")
-                # print(f"   - userId is True: {bool(userId)}")
-                # print(f"   - image_url is True: {bool(image_url)}")
                 if userId and image_url:
                     print("Got user",userId,"image_url",image_url)
                     user_doc = user_col.find_one({"u_Id": userId})
@@ -164,6 +170,14 @@ def generate_image(prompt, userId=None):
                             "created_at": datetime.datetime.utcnow()
                         })
                         print("saved to DB")
+                        
+                        # Increment total_images_generated counter in users_dash
+                        users_dash_col.update_one(
+                            {"u_Id": userId},
+                            {"$inc": {"total_images_generated": 1}},
+                            upsert=True
+                        )
+                        print("Counter incremented in users_dash")
                 
                 return image_url
             else:

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import auth_routes, ai_routes, image_routes,profile,explore
+from app.routes import auth_routes, ai_routes, image_routes,profile,explore,captions
 from app.core.firebase import initialize_firebase
 
 # Include the profile router
@@ -27,10 +27,12 @@ app.include_router(ai_routes.router)
 app.include_router(image_routes.router)
 app.include_router(profile.router)
 app.include_router(explore.router)
+app.include_router(captions.router)
 # print("Registered routes:")
 # for route in app.routes:
 #     print(f"  {route.path}")
 
 @app.get("/")
 def read_root():
+    print("Hello")
     return {"message": "Welcome to CraftSathi API"}

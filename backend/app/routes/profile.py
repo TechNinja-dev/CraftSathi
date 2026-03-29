@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from datetime import datetime
-from app.db.mongodb import user_col, images_col,explore_dash_col
+from app.db.mongodb import user_col, images_col,users_dash_col,caption_col
 
 router = APIRouter()
 
@@ -15,51 +15,45 @@ async def get_profile(userId: str):
         if not user_doc:
             raise HTTPException(status_code=404, detail="User not found")
         
-        # Fetch profile data from explore_dash_col
-        profile_doc = explore_dash_col.find_one({"u_Id": userId})
+        # Get stats from users_dash_col (no need to iterate through images_col)
+        dash_stats = users_dash_col.find_one({"u_Id": userId})
+        # print(dash_stats)
+        total_images = int(dash_stats.get("total_images_generated", 0) if dash_stats else 0)
+        total_captions = int(dash_stats.get("total_captions_generated", 0) if dash_stats else 0)
+        total_posts = total_images + total_captions
+        print("images ",total_images," Total captions ",total_captions)
+        print(total_posts)
         
-        # Fetch all user's images/posts
+        # Fetch recent posts for display (limit to last 6 for dashboard)
         cursor = images_col.find(
             {"user_id": user_doc["_id"]}
-        ).sort("created_at", -1)
+        ).sort("created_at", -1).limit(6)
         
         posts = []
-        total_captions = 0
-        total_images = 0
-        
         for doc in cursor:
-            # Determine post type
-            if doc.get("image_url"):
-                post_type = "image"
-                total_images += 1
-            else:
-                post_type = "caption"
-                total_captions += 1
-            
             posts.append({
                 "id": str(doc["_id"]),
-                "type": post_type,
+                "type": "image",
                 "prompt": doc.get("prompt", ""),
-                "caption": doc.get("caption", ""),
                 "image_url": doc.get("image_url", ""),
                 "created_at": doc.get("created_at", datetime.utcnow()).isoformat()
             })
         
-        # Get member since date (when user first registered)
+        # Get member since date
         member_since = user_doc.get("created_at", datetime.utcnow())
         
         # Build profile data with fallbacks
         profile_data = {
-            "name": profile_doc.get("u_name") if profile_doc else user_doc.get("u_name"),
-            "avatar": profile_doc.get("avatar") if profile_doc else None,
-            "country": profile_doc.get("country") if profile_doc else "",
-            "bio": profile_doc.get("bio") if profile_doc else "",
-            "specialties": profile_doc.get("specialties") if profile_doc else [],
-            "instagram": profile_doc.get("instagram") if profile_doc else "",
-            "youtube": profile_doc.get("youtube") if profile_doc else "",
-            "website": profile_doc.get("website") if profile_doc else "",
-            "experience": profile_doc.get("experience") if profile_doc else "",
-            "favoriteMaterials": profile_doc.get("favoriteMaterials") if profile_doc else []
+            "name": dash_stats.get("u_name") if dash_stats else user_doc.get("u_name"),
+            "avatar": dash_stats.get("avatar") if dash_stats else None,
+            "country": dash_stats.get("country") if dash_stats else "",
+            "bio": dash_stats.get("bio") if dash_stats else "",
+            "specialties": dash_stats.get("specialties") if dash_stats else [],
+            "instagram": dash_stats.get("instagram") if dash_stats else "",
+            "youtube": dash_stats.get("youtube") if dash_stats else "",
+            "website": dash_stats.get("website") if dash_stats else "",
+            "experience": dash_stats.get("experience") if dash_stats else "",
+            "favoriteMaterials": dash_stats.get("favoriteMaterials") if dash_stats else []
         }
         
         return {
@@ -69,7 +63,7 @@ async def get_profile(userId: str):
                 "u_Id": user_doc.get("u_Id")
             },
             "profile": profile_data,
-            "posts": posts,
+            "posts": total_posts,
             "totalCaptions": total_captions,
             "totalImages": total_images,
             "memberSince": member_since.isoformat() if isinstance(member_since, datetime) else member_since
@@ -92,7 +86,7 @@ async def update_profile(data: dict):
             raise HTTPException(status_code=400, detail="User ID required")
         
         # Update user's dashboard collection
-        result = explore_dash_col.update_one(
+        result = users_dash_col.update_one(
             {"u_Id": userId},
             {"$set": {
                 "u_name":profile.get("name"),
@@ -132,7 +126,7 @@ async def update_avatar(data: dict):
         if not userId:
             raise HTTPException(status_code=400, detail="User ID required")
         
-        result = explore_dash_col.update_one(
+        result = users_dash_col.update_one(
             {"u_Id": userId},
             {"$set": {"avatar": avatar}},
             upsert=True
@@ -153,7 +147,7 @@ async def remove_avatar(data: dict):
         if not userId:
             raise HTTPException(status_code=400, detail="User ID required")
         
-        result = explore_dash_col.update_one(
+        result = users_dash_col.update_one(
             {"u_Id": userId},
             {"$set": {"avatar": None}},
             upsert=True
