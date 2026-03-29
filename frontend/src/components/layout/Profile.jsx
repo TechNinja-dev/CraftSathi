@@ -153,9 +153,11 @@ const handleRemoveAvatar = async () => {
       }
 
       const data = await response.json();
+      console.log("Captions "+data.totalCaptions )
+      console.log(data.total_images)
       
       setUserStats({
-        totalPosts: data.posts?.length || 0,
+        totalPosts: data.posts || 0,
         memberSince: data.memberSince || new Date().toISOString(),
         totalCaptions: data.totalCaptions || 0,
         totalImages: data.totalImages || 0,

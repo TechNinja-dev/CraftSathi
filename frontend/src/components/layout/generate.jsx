@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import { ImagePlus, Loader2, Copy, Check } from 'lucide-react';
+import { ImagePlus, Loader2, Copy, Check, Bookmark, BookmarkCheck } from 'lucide-react';
 import Footer from './Footer.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { useToast } from '../../context/ToastContext.jsx';
 
 const Generate = () => {
-  // Load from localStorage on mount
+  const { isAuthenticated, userData } = useAuth();
+  const { showToast } = useToast();
+  
+  // Load from sessionStorage on mount
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(() => {
     return sessionStorage.getItem('lastPreviewUrl') || null;
@@ -15,6 +20,8 @@ const Generate = () => {
   });
   const [error, setError] = useState('');
   const [copiedIndex, setCopiedIndex] = useState(null);
+  const [savedIndex, setSavedIndex] = useState(null);
+  const [savingIndex, setSavingIndex] = useState(null);
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 
@@ -24,9 +31,9 @@ const Generate = () => {
       setSelectedFile(file);
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
-      localStorage.setItem('lastPreviewUrl', url);
+      sessionStorage.setItem('lastPreviewUrl', url);
       setCaptions([]);
-      localStorage.removeItem('lastCaptions');
+      sessionStorage.removeItem('lastCaptions');
       setError('');
     }
   };
@@ -42,7 +49,9 @@ const Generate = () => {
     setError('');
 
     const formData = new FormData();
+    const userId = isAuthenticated && userData ? userData.u_Id : null;
     formData.append('file', selectedFile);
+    formData.append('userId', userId); 
 
     try {
       const response = await fetch(`${API_URL}/api/generate`, {
@@ -70,8 +79,8 @@ const Generate = () => {
       }
       
       setCaptions(captionsArray);
-      // Save to localStorage
-      localStorage.setItem('lastCaptions', JSON.stringify(captionsArray));
+      // Save to sessionStorage
+      sessionStorage.setItem('lastCaptions', JSON.stringify(captionsArray));
       
     } catch (err) {
       console.error('Error:', err);
@@ -85,6 +94,52 @@ const Generate = () => {
     navigator.clipboard.writeText(text);
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  const saveCaption = async (caption, index) => {
+    if (!isAuthenticated) {
+      const confirmRedirect = window.confirm('Please sign in to save captions. Would you like to sign in now?');
+      if (confirmRedirect) {
+        sessionStorage.setItem('pendingSaveCaption', caption);
+        window.location.href = '/auth';
+      }
+      return;
+    }
+
+    setSavingIndex(index);
+    try {
+      const userId = userData.u_Id || userData.uid;
+      const payload = {
+        userId: userId,
+        caption: caption,
+        image_url: previewUrl
+      };
+
+      const response = await fetch(`${API_URL}/api/save-caption`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to save caption');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        setSavedIndex(index);
+        showToast('Caption saved successfully!', 'success');
+        setTimeout(() => setSavedIndex(null), 2000);
+      }
+    } catch (err) {
+      console.error('Error saving caption:', err);
+      showToast(err.message, 'error');
+    } finally {
+      setSavingIndex(null);
+    }
   };
 
   return (
@@ -166,17 +221,37 @@ const Generate = () => {
                             </span>
                             <p className="text-gray-700 inline">{caption}</p>
                           </div>
-                          <button
-                            onClick={() => copyToClipboard(caption, index)}
-                            className="flex-shrink-0 p-2 text-gray-400 hover:text-brand-primary transition-colors"
-                            title="Copy caption"
-                          >
-                            {copiedIndex === index ? (
-                              <Check size={18} className="text-green-500" />
-                            ) : (
-                              <Copy size={18} />
+                          <div className="flex items-center gap-2">
+                            {/* Save Button */}
+                            {isAuthenticated && (
+                              <button
+                                onClick={() => saveCaption(caption, index)}
+                                disabled={savingIndex === index}
+                                className="flex-shrink-0 p-2 text-gray-400 hover:text-green-600 transition-colors"
+                                title="Save caption"
+                              >
+                                {savingIndex === index ? (
+                                  <Loader2 size={18} className="animate-spin" />
+                                ) : savedIndex === index ? (
+                                  <BookmarkCheck size={18} className="text-green-500" />
+                                ) : (
+                                  <Bookmark size={18} />
+                                )}
+                              </button>
                             )}
-                          </button>
+                            {/* Copy Button */}
+                            <button
+                              onClick={() => copyToClipboard(caption, index)}
+                              className="flex-shrink-0 p-2 text-gray-400 hover:text-brand-primary transition-colors"
+                              title="Copy caption"
+                            >
+                              {copiedIndex === index ? (
+                                <Check size={18} className="text-green-500" />
+                              ) : (
+                                <Copy size={18} />
+                              )}
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
