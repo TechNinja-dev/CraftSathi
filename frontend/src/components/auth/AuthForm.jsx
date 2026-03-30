@@ -3,7 +3,6 @@ import { Eye, EyeOff } from 'lucide-react';
 import { auth } from '../../api/firebase.js';
 import { useNavigate } from 'react-router-dom';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 
@@ -162,12 +161,12 @@ const AuthForm = ({ onOtpRequired }) => {
   };
 
   return (
-    <div className="w-full max-w-sm">
+    <div className="w-full max-w-sm mx-auto">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-brand-text font-display">
+        <h1 className="text-3xl font-bold text-white font-display tracking-tight">
           {isLoginMode ? 'Welcome Back' : 'Create an Account'}
         </h1>
-        <p className="text-gray-500 mt-2">
+        <p className="text-gray-400 mt-2">
           {isLoginMode ? 'Sign in to continue to CraftSathi' : 'Get started with your craft journey'}
         </p>
       </div>
@@ -175,28 +174,30 @@ const AuthForm = ({ onOtpRequired }) => {
       <button
         onClick={handleGoogleSignIn}
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
       >
-        <GoogleLogo />
-        <span className="font-semibold text-gray-700">Continue with Google</span>
+        <div className="bg-white p-1 rounded-full group-hover:scale-110 transition-transform">
+          <GoogleLogo />
+        </div>
+        <span className="font-semibold text-white">Continue with Google</span>
       </button>
 
-      <div className="my-6 flex items-center">
-        <div className="flex-grow border-t border-gray-300"></div>
-        <span className="mx-4 text-sm text-gray-500">OR</span>
-        <div className="flex-grow border-t border-gray-300"></div>
+      <div className="my-8 flex items-center">
+        <div className="flex-grow border-t border-white/10"></div>
+        <span className="mx-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">Or continue with email</span>
+        <div className="flex-grow border-t border-white/10"></div>
       </div>
 
       {error && (
-        <div className="bg-red-100 text-red-700 p-3 rounded-lg text-center mb-4">
+        <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-xl text-center mb-6 text-sm backdrop-blur-sm">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {!isLoginMode && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider">
               Full Name
             </label>
             <input
@@ -204,14 +205,14 @@ const AuthForm = ({ onOtpRequired }) => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required={!isLoginMode}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
+              className="w-full px-4 py-3 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
               placeholder="Your Name"
             />
           </div>
         )}
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider">
             Email Address
           </label>
           <input
@@ -219,13 +220,13 @@ const AuthForm = ({ onOtpRequired }) => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
+            className="w-full px-4 py-3 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
             placeholder="you@example.com"
           />
         </div>
         
         <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider">
             Password
           </label>
           <input
@@ -233,40 +234,40 @@ const AuthForm = ({ onOtpRequired }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
+            className="w-full px-4 py-3 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
             placeholder="••••••••"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-10 text-gray-500"
+            className="absolute right-4 top-10 text-gray-400 hover:text-white transition-colors"
           >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
         
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 px-4 bg-brand-primary text-white font-semibold rounded-lg shadow-md hover:bg-brand-primary-hover transition-colors disabled:opacity-50 disabled:cursor-wait"
+          className="w-full py-4 px-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl hover:shadow-[0_0_20px_rgba(236,72,153,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-wait mt-2"
         >
           {loading ? (
             <div className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              Processing...
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <span>Processing...</span>
             </div>
           ) : (
-            isLoginMode ? 'Sign In' : 'Create Account'
+            isLoginMode ? 'Sign In to Vault' : 'Create Vault Account'
           )}
         </button>
       </form>
 
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
+      <div className="mt-8 text-center border-t border-white/5 pt-6">
+        <p className="text-sm text-gray-400">
           {isLoginMode ? "Don't have an account?" : 'Already have an account?'}
           <button 
             onClick={switchModeHandler} 
-            className="font-semibold text-brand-primary hover:underline ml-1"
+            className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 hover:opacity-80 transition-opacity ml-2"
           >
             {isLoginMode ? 'Sign Up' : 'Sign In'}
           </button>

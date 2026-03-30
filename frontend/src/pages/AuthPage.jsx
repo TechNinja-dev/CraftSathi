@@ -6,8 +6,8 @@ import CreatePassword from '../components/auth/CreatePassword.jsx';
 import artisanImage from '../assets/authimg.png';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '../api/firebase.js';
+import { motion } from 'framer-motion';
+import Navbar from '../components/layout/Navbar.jsx';
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -16,7 +16,6 @@ const AuthPage = () => {
   const [step, setStep] = useState('login'); // 'login', 'otp', 'createPassword'
   const [pendingEmail, setPendingEmail] = useState('');
   const [pendingToken, setPendingToken] = useState('');
-  const [pendingUserData, setPendingUserData] = useState(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSettingPassword, setIsSettingPassword] = useState(false);
 
@@ -33,7 +32,6 @@ const AuthPage = () => {
     setStep('login');
     setPendingEmail('');
     setPendingToken('');
-    setPendingUserData(null);
   };
 
   const handleBackToOtp = () => {
@@ -86,7 +84,6 @@ const AuthPage = () => {
       // Check if this is a new user (no password set)
       if (loginData.is_new_user || !loginData.user?.has_password) {
         console.log("🆕 New user detected, need to create password");
-        setPendingUserData(loginData.user);
         setStep('createPassword');
         setIsVerifying(false);
         return;
@@ -173,70 +170,95 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-brand-bg font-sans p-4 mt-20">
-      <div className="flex w-full max-w-6xl h-[85vh] min-h-[600px] bg-white rounded-2xl shadow-2xl overflow-hidden">
-        
-        {/* Left Panel: Visual Inspiration */}
-        <div className="hidden lg:flex w-1/2 relative">
-          <img 
-            src={artisanImage}
-            alt="Artisan at work" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-60 flex items-end p-12">
-            <h1 className="text-white text-5xl font-display font-bold leading-tight">
-              Your Craft,
-              <br />
-              The World's Stage.
-            </h1>
-          </div>
-        </div>
+    <div className="min-h-screen bg-[#0c0516] flex flex-col font-sans selection:bg-pink-500/30 overflow-x-hidden relative">
+      <Navbar />
+      
+      {/* Background glow effects */}
+      <div className="fixed top-0 left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none z-0" />
+      <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-pink-600/10 rounded-full blur-[150px] pointer-events-none z-0" />
 
-        {/* Right Panel: Action Area with Slide Animation */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-12 overflow-y-auto relative">
-          <div className="relative w-full max-w-sm">
-            {/* AuthForm - Login/Register */}
-            <div 
-              className={`transition-all duration-300 ${
-                step !== 'login' ? 'opacity-0 -translate-x-full absolute inset-0 pointer-events-none' : 'opacity-100 translate-x-0 relative'
-              }`}
-            >
-              <AuthForm onOtpRequired={handleOtpRequired} />
-            </div>
-            
-            {/* OtpSlide - OTP Verification */}
-            <div 
-              className={`transition-all duration-300 ${
-                step === 'otp' ? 'opacity-100 translate-x-0 relative' : 'opacity-0 translate-x-full absolute inset-0 pointer-events-none'
-              }`}
-            >
-              <OtpSlide
-                email={pendingEmail}
-                onVerify={handleVerifyOtp}
-                onResend={handleResendOtp}
-                onBack={handleBackToLogin}
-                loading={isVerifying}
-                isVisible={step === 'otp'}
-              />
-            </div>
-
-            {/* CreatePassword - Password Creation for New Users */}
-            <div 
-              className={`transition-all duration-300 ${
-                step === 'createPassword' ? 'opacity-100 translate-x-0 relative' : 'opacity-0 translate-x-full absolute inset-0 pointer-events-none'
-              }`}
-            >
-              <CreatePassword
-                email={pendingEmail}
-                onPasswordSet={handleSetPassword}
-                onBack={handleBackToOtp}
-                loading={isSettingPassword}
-                isVisible={step === 'createPassword'}
-              />
+      <main className="flex-1 w-full flex items-center justify-center p-4 pt-24 pb-12 relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="flex flex-col lg:flex-row w-full max-w-5xl bg-[#130826]/70 backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden min-h-[600px] lg:h-[700px]"
+        >
+          
+          {/* Left Panel: Visual Inspiration */}
+          <div className="hidden lg:flex w-1/2 relative group overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 to-pink-900/50 mix-blend-overlay z-10" />
+            <img 
+              src={artisanImage}
+              alt="Artisan at work" 
+              className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0c0516] via-[#0c0516]/60 to-transparent z-20 flex flex-col justify-end p-12">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <div className="inline-flex items-center px-4 py-2 rounded-full border border-purple-500/30 bg-purple-500/10 mb-6">
+                  <span className="text-sm font-bold tracking-wider text-purple-300">
+                    Welcome to CraftSathi
+                  </span>
+                </div>
+                <h1 className="text-white text-5xl font-extrabold leading-tight mb-4 tracking-tight">
+                  Your Craft,<br/>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">The World's Stage.</span>
+                </h1>
+                <p className="text-gray-400 text-lg">Join a thriving community of artisans and showcase your masterpieces globally with the power of AI.</p>
+              </motion.div>
             </div>
           </div>
-        </div>
-      </div>
+
+          {/* Right Panel: Action Area */}
+          <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-12 relative bg-[#0c0516]/40">
+            <div className="relative w-full max-w-sm">
+              {/* AuthForm - Login/Register */}
+              <div 
+                className={`transition-all duration-500 ease-in-out ${
+                  step !== 'login' ? 'opacity-0 -translate-x-full absolute inset-0 pointer-events-none blur-sm' : 'opacity-100 translate-x-0 relative blur-0'
+                }`}
+              >
+                <AuthForm onOtpRequired={handleOtpRequired} />
+              </div>
+              
+              {/* OtpSlide - OTP Verification */}
+              <div 
+                className={`transition-all duration-500 ease-in-out ${
+                  step === 'otp' ? 'opacity-100 translate-x-0 relative blur-0' : 'opacity-0 translate-x-full absolute inset-0 pointer-events-none blur-sm'
+                }`}
+              >
+                <OtpSlide
+                  email={pendingEmail}
+                  onVerify={handleVerifyOtp}
+                  onResend={handleResendOtp}
+                  onBack={handleBackToLogin}
+                  loading={isVerifying}
+                  isVisible={step === 'otp'}
+                />
+              </div>
+
+              {/* CreatePassword - Password Creation for New Users */}
+              <div 
+                className={`transition-all duration-500 ease-in-out ${
+                  step === 'createPassword' ? 'opacity-100 translate-x-0 relative blur-0' : 'opacity-0 translate-x-full absolute inset-0 pointer-events-none blur-sm'
+                }`}
+              >
+                <CreatePassword
+                  email={pendingEmail}
+                  onPasswordSet={handleSetPassword}
+                  onBack={handleBackToOtp}
+                  loading={isSettingPassword}
+                  isVisible={step === 'createPassword'}
+                />
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </main>
     </div>
   );
 };

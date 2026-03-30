@@ -6,8 +6,11 @@ import {
   Sparkles, LogOut, Home, Captions, FolderOpen, 
   Info, TrendingUp, Heart, Eye, User, LayoutDashboard,
   AlertCircle, Edit3, X, Globe, Briefcase, Link as LinkIcon,
-  Award, MapPin, Instagram, Youtube, ChevronRight, Upload, Trash2
+  Award, MapPin, Instagram, Youtube, ChevronRight, Upload, Trash2, Shield
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import CountUp from 'react-countup';
+import Navbar from './Navbar.jsx';
 import Footer from './Footer.jsx';
 
 const Profile = () => {
@@ -290,510 +293,527 @@ const handleSaveProfile = async () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center bg-brand-bg">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md">
-          <div className="w-20 h-20 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <User size={40} className="text-brand-primary" />
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center bg-[#0c0516] font-sans">
+        <Navbar />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-[#130826]/80 backdrop-blur-xl border border-purple-500/20 rounded-3xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden mt-20"
+        >
+          <div className="absolute top-0 right-0 w-40 h-40 bg-pink-500/10 rounded-full blur-[50px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-500/10 rounded-full blur-[50px] pointer-events-none" />
+          
+          <div className="w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-purple-500/20 shadow-[0_0_30px_rgba(168,85,247,0.2)]">
+            <User size={40} className="text-purple-400" />
           </div>
-          <h1 className="text-3xl font-bold text-brand-text mb-4">You need to be logged in</h1>
-          <p className="text-gray-600 mb-6">
-            Please sign in to view your profile and dashboard.
+          <h1 className="text-3xl font-bold text-white mb-4">Authentication Required</h1>
+          <p className="text-gray-400 mb-8 leading-relaxed">
+            Please sign in to view and edit your professional creator profile.
           </p>
           <Link 
             to="/auth" 
-            className="inline-block px-6 py-3 bg-brand-primary text-white font-semibold rounded-lg shadow-md hover:bg-brand-primary-hover transition-colors"
+            className="inline-block w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(236,72,153,0.2)] hover:shadow-[0_0_30px_rgba(236,72,153,0.4)] hover:-translate-y-1 transition-all"
           >
-            Sign In
+            Sign In To Proceed
           </Link>
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-bg to-gray-100">
-        <div className="text-center">
-          <Loader2 className="animate-spin text-brand-primary mx-auto mb-4" size={48} />
-          <p className="text-gray-500">Loading your dashboard...</p>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0c0516]">
+        <Loader2 className="animate-spin text-purple-500 mb-4" size={48} />
+        <p className="text-gray-400 animate-pulse">Loading your artisan portfolio...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-bg to-gray-100 flex">
-      {/* Fixed Sidebar */}
-      <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-xl flex flex-col z-30">
-        <div className="p-6 border-b border-gray-100">
-          <Link to="/" className="text-2xl font-bold font-display text-brand-text">
-            CraftSathi
-          </Link>
-          <p className="text-xs text-gray-400 mt-1">Artisan Dashboard</p>
+    <div className="min-h-screen bg-[#0c0516] flex flex-col font-sans selection:bg-pink-500/30 overflow-x-hidden relative">
+      <Navbar />
+      
+      {/* Background glow effects */}
+      <div className="fixed top-[10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none -z-10" />
+      <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-pink-600/10 rounded-full blur-[150px] pointer-events-none -z-10" />
+
+      <main className="flex-1 w-full relative z-10">
+        
+        {/* Hero Section */}
+        <div className="w-full h-64 md:h-80 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#130826] via-purple-900/40 to-pink-900/40 z-0"/>
+          <img 
+            src={profileData.avatar || "/api/placeholder/1200/400"} 
+            alt="Hero Background" 
+            className="w-full h-full object-cover opacity-20 blur-sm group-hover:scale-105 transition-transform duration-1000"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0516] via-transparent to-transparent z-10" />
         </div>
 
-        <nav className="flex-1 py-6">
-          {sidebarLinks.map((link) => {
-            const Icon = link.icon;
-            const isActive = location.pathname === link.path;
-            return (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`flex items-center gap-3 px-6 py-3 transition-colors group ${
-                  isActive 
-                    ? 'bg-brand-primary/10 text-brand-primary border-r-4 border-brand-primary' 
-                    : 'text-gray-700 hover:bg-brand-primary/10 hover:text-brand-primary'
-                }`}
-              >
-                <Icon size={20} className="group-hover:scale-110 transition-transform" />
-                <span className="font-medium">{link.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="p-6 border-t border-gray-100">
-          <button
-            onClick={() => setShowLogoutConfirm(true)}
-            className="flex items-center gap-3 w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+        {/* Profile Info Container */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-24 mb-16">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[#130826]/70 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-10 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
           >
-            <LogOut size={20} />
-            <span className="font-medium">Logout</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 ml-64 min-h-screen flex flex-col">
-        {/* Profile Header with Camera Upload */}
-        <div className="bg-white shadow-sm border-b border-gray-100">
-          <div className="max-w-5xl mx-auto px-6 py-8">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-              {/* Avatar with Upload Overlay */}
-              <div className="relative group">
-                <div className="w-28 h-28 bg-gradient-to-br from-brand-primary to-brand-primary-hover rounded-full flex items-center justify-center text-white shadow-lg overflow-hidden">
-                  {profileData.avatar ? (
-                    <img src={profileData.avatar} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <Camera size={48} />
-                  )}
-                </div>
-                
-                {/* Camera Overlay - Shows on hover */}
-                <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                      title="Upload photo"
-                      disabled={uploading}
-                    >
-                      <Upload size={16} className="text-gray-700" />
-                    </button>
-                    {profileData.avatar && (
-                      <button
-                        onClick={() => setShowRemoveConfirm(true)}
-                        className="p-2 bg-white rounded-full hover:bg-red-50 transition-colors"
-                        title="Remove photo"
-                        disabled={uploading}
-                      >
-                        <Trash2 size={16} className="text-red-500" />
-                      </button>
+            <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
+              
+              {/* Avatar Frame */}
+              <div className="relative group/avatar shrink-0 z-30 -mt-20">
+                <div className="w-40 h-40 sm:w-48 sm:h-48 bg-[#0c0516] p-2 rounded-3xl border border-white/10 shadow-2xl relative">
+                  <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center overflow-hidden">
+                    {profileData.avatar ? (
+                      <img src={profileData.avatar} alt="Profile" className="w-full h-full object-cover transition-transform duration-500 group-hover/avatar:scale-110" />
+                    ) : (
+                      <Camera size={64} className="text-white opacity-50" />
                     )}
                   </div>
-                </div>
-                
-                {/* Hidden file input */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                
-                {/* Uploading indicator */}
-                {uploading && (
-                  <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
-                    <Loader2 className="animate-spin text-white" size={24} />
+
+                  {/* Camera Overlay */}
+                  <div className="absolute inset-2 bg-black/60 rounded-2xl flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity cursor-pointer backdrop-blur-sm">
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-3 bg-white/20 hover:bg-white/40 border border-white/30 rounded-xl transition-all"
+                        title="Upload photo"
+                        disabled={uploading}
+                      >
+                        <Upload size={20} className="text-white" />
+                      </button>
+                      {profileData.avatar && (
+                        <button
+                          onClick={() => setShowRemoveConfirm(true)}
+                          className="p-3 bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 rounded-xl transition-all"
+                          title="Remove photo"
+                          disabled={uploading}
+                        >
+                          <Trash2 size={20} className="text-red-400" />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                )}
-              </div>
-              
-              <div className="text-center md:text-left flex-1">
-                <div className="flex items-center justify-center md:justify-start gap-3">
-                  <h1 className="text-3xl md:text-4xl font-bold font-display text-brand-text">
-                    {profileData.name || userData?.u_name || userData?.name || 'Artisan'}
-                  </h1>
-                  <button
-                    onClick={handleEditProfile}
-                    className="p-2 text-gray-400 hover:text-brand-primary transition-colors"
-                    title="Edit Profile"
-                  >
-                    <Edit3 size={18} />
-                  </button>
-                </div>
-                
-                {/* Location */}
-                {profileData.country && (
-                  <div className="flex items-center gap-1 justify-center md:justify-start text-gray-500 text-sm mt-1">
-                    <MapPin size={14} />
-                    <span>{profileData.country}</span>
-                  </div>
-                )}
-                
-                {/* Bio */}
-                {profileData.bio && (
-                  <p className="text-gray-600 text-sm mt-2 max-w-md">{profileData.bio}</p>
-                )}
-                
-                <div className="flex flex-col sm:flex-row gap-3 mt-3 text-gray-500">
-                  <div className="flex items-center gap-2 justify-center md:justify-start">
-                    <Mail size={16} />
-                    <span className="text-sm">{userData?.u_mail || userData?.email || 'No email'}</span>
-                  </div>
-                  <div className="flex items-center gap-2 justify-center md:justify-start">
-                    <Calendar size={16} />
-                    <span className="text-sm">Joined {formatDate(userStats.memberSince)}</span>
-                  </div>
-                  {profileData.experience && (
-                    <div className="flex items-center gap-2 justify-center md:justify-start">
-                      <Briefcase size={16} />
-                      <span className="text-sm">{profileData.experience} years experience</span>
+                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  {uploading && (
+                    <div className="absolute inset-2 bg-black/70 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                      <Loader2 className="animate-spin text-purple-500" size={32} />
                     </div>
                   )}
                 </div>
+              </div>
 
-                {/* Specialties Tags */}
-                {profileData.specialties && profileData.specialties.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-3 justify-center md:justify-start">
-                    {profileData.specialties.map((specialty, idx) => (
-                      <span key={idx} className="px-2 py-1 bg-brand-primary/10 text-brand-primary text-xs rounded-full">
-                        {specialty}
+              {/* Profile Details */}
+              <div className="flex-1 text-center md:text-left w-full mt-4 md:mt-0">
+                <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-4 mb-4">
+                  <div>
+                    <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 tracking-tight">
+                      {profileData.name || userData?.u_name || userData?.name || 'Artisan'}
+                    </h1>
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-3 text-sm font-medium text-purple-300">
+                      {profileData.country && (
+                        <span className="flex items-center gap-1.5 bg-purple-500/10 px-3 py-1.5 rounded-full border border-purple-500/20">
+                          <MapPin size={16} /> {profileData.country}
+                        </span>
+                      )}
+                      {profileData.experience && (
+                        <span className="flex items-center gap-1.5 bg-pink-500/10 px-3 py-1.5 rounded-full border border-pink-500/20">
+                          <Briefcase size={16} /> {profileData.experience} Years Pro
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1.5 bg-emerald-500/10 px-3 py-1.5 text-emerald-300 rounded-full border border-emerald-500/20">
+                        <Shield size={16} /> Verified Creator
                       </span>
-                    ))}
+                    </div>
                   </div>
+                  <button
+                    onClick={handleEditProfile}
+                    className="flex flex-shrink-0 items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl transition-all shadow-lg hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] font-semibold"
+                  >
+                    <Edit3 size={18} /> Edit Profile
+                  </button>
+                </div>
+
+                {profileData.bio && (
+                  <p className="text-gray-400 text-lg leading-relaxed max-w-3xl mb-6">
+                    "{profileData.bio}"
+                  </p>
                 )}
 
-                {/* Social Links */}
-                <div className="flex gap-3 mt-4 justify-center md:justify-start">
-                  {profileData.instagram && (
-                    <a href={profileData.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-pink-500 transition-colors">
-                      <Instagram size={18} />
-                    </a>
-                  )}
-                  {profileData.youtube && (
-                    <a href={profileData.youtube} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-red-600 transition-colors">
-                      <Youtube size={18} />
-                    </a>
-                  )}
-                  {profileData.website && (
-                    <a href={profileData.website} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-primary transition-colors">
-                      <LinkIcon size={18} />
-                    </a>
-                  )}
+                {/* Specialties and Socials row */}
+                <div className="flex flex-col xl:flex-row justify-between items-center md:items-start gap-6 pt-6 border-t border-white/10">
+                  <div className="flex-1">
+                    <h3 className="text-sm uppercase tracking-wider text-gray-500 font-bold mb-3 text-center md:text-left">Mastery & Focus</h3>
+                    <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                      {profileData.specialties && profileData.specialties.length > 0 ? (
+                        profileData.specialties.map((specialty, idx) => (
+                          <span key={idx} className="px-4 py-1.5 bg-[#0c0516] text-gray-300 text-sm font-medium rounded-lg border border-white/10 shadow-inner">
+                            {specialty}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-gray-600 text-sm italic">No specialties listed yet</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4 bg-[#0c0516] p-2 rounded-2xl border border-white/10">
+                    {profileData.instagram ? (
+                      <a href={profileData.instagram} target="_blank" rel="noopener noreferrer" className="p-3 text-gray-400 hover:text-pink-500 hover:bg-pink-500/10 rounded-xl transition-all">
+                        <Instagram size={22} />
+                      </a>
+                    ) : (
+                      <div className="p-3 text-gray-700 rounded-xl cursor-not-allowed"><Instagram size={22} /></div>
+                    )}
+                    {profileData.youtube ? (
+                      <a href={profileData.youtube} target="_blank" rel="noopener noreferrer" className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all">
+                        <Youtube size={22} />
+                      </a>
+                    ) : (
+                      <div className="p-3 text-gray-700 rounded-xl cursor-not-allowed"><Youtube size={22} /></div>
+                    )}
+                    {profileData.website ? (
+                      <a href={profileData.website} target="_blank" rel="noopener noreferrer" className="p-3 text-gray-400 hover:text-purple-400 hover:bg-purple-500/10 rounded-xl transition-all">
+                        <LinkIcon size={22} />
+                      </a>
+                    ) : (
+                      <div className="p-3 text-gray-700 rounded-xl cursor-not-allowed"><LinkIcon size={22} /></div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
+          </motion.div>
+          
+          {/* Stats & Actions Sub-grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="lg:col-span-2 bg-[#130826]/50 backdrop-blur-xl border border-white/5 rounded-3xl p-8 shadow-xl"
+            >
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                <TrendingUp className="text-purple-400" /> Career Analytics
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="bg-[#0c0516] rounded-2xl p-5 border border-white/5 text-center group hover:border-purple-500/30 transition-colors">
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                    <LayoutDashboard size={24} className="text-purple-400" />
+                  </div>
+                  <h3 className="text-3xl font-extrabold text-white mb-1"><CountUp end={userStats.totalPosts} /></h3>
+                  <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Total Posts</p>
+                </div>
+                <div className="bg-[#0c0516] rounded-2xl p-5 border border-white/5 text-center group hover:border-pink-500/30 transition-colors">
+                  <div className="w-12 h-12 bg-pink-500/10 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                    <Sparkles size={24} className="text-pink-400" />
+                  </div>
+                  <h3 className="text-3xl font-extrabold text-white mb-1"><CountUp end={userStats.totalCaptions} /></h3>
+                  <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Captions</p>
+                </div>
+                <div className="bg-[#0c0516] rounded-2xl p-5 border border-white/5 text-center group hover:border-emerald-500/30 transition-colors">
+                  <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                    <ImageIcon size={24} className="text-emerald-400" />
+                  </div>
+                  <h3 className="text-3xl font-extrabold text-white mb-1"><CountUp end={userStats.totalImages} /></h3>
+                  <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Images</p>
+                </div>
+                <div className="bg-[#0c0516] rounded-2xl p-5 border border-white/5 text-center group hover:border-amber-500/30 transition-colors">
+                  <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                    <Heart size={24} className="text-amber-400" />
+                  </div>
+                  <h3 className="text-3xl font-extrabold text-white mb-1"><CountUp end={userStats.engagement} />%</h3>
+                  <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Engagement</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-[#130826]/50 backdrop-blur-xl border border-white/5 rounded-3xl p-8 shadow-xl flex flex-col justify-between"
+            >
+              <div>
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                  <TrendingUp className="text-pink-400" /> Quick Actions
+                </h2>
+                <p className="text-gray-400 text-sm leading-relaxed mb-6">
+                  Ready to craft your next masterpiece? Elevate your portfolio and reach your audience faster.
+                </p>
+                <div className="space-y-3">
+                  <Link to="/photo" className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/30 rounded-xl transition-all group">
+                    <div className="flex items-center gap-3"><ImageIcon className="text-purple-400" size={20} /><span className="text-gray-200 font-semibold">AI Image Lab</span></div>
+                    <ChevronRight className="text-gray-500 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" size={18} />
+                  </Link>
+                  <Link to="/generate" className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-pink-500/30 rounded-xl transition-all group">
+                    <div className="flex items-center gap-3"><Captions className="text-pink-400" size={20} /><span className="text-gray-200 font-semibold">Caption Studio</span></div>
+                    <ChevronRight className="text-gray-500 group-hover:text-pink-400 group-hover:translate-x-1 transition-all" size={18} />
+                  </Link>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowLogoutConfirm(true)}
+                className="mt-6 w-full flex items-center justify-center gap-2 p-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 rounded-xl transition-all font-bold"
+              >
+                <LogOut size={18} /> Disconnect Vault
+              </button>
+            </motion.div>
+
           </div>
         </div>
+      </main>
+      <Footer />
 
-        {/* Stats Section */}
-        <div className="max-w-5xl mx-auto px-6 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* ... stats cards (same as before) ... */}
-            <div className="bg-white rounded-2xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 bg-brand-primary/10 rounded-xl flex items-center justify-center">
-                  <TrendingUp size={20} className="text-brand-primary" />
-                </div>
-                <span className="text-2xl font-bold text-brand-text">{userStats.totalPosts}</span>
-              </div>
-              <p className="text-sm text-gray-500 mt-2">Total Creations</p>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                  <Sparkles size={20} className="text-purple-600" />
-                </div>
-                <span className="text-2xl font-bold text-brand-text">{userStats.totalCaptions}</span>
-              </div>
-              <p className="text-sm text-gray-500 mt-2">Captions Generated</p>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                  <ImageIcon size={20} className="text-green-600" />
-                </div>
-                <span className="text-2xl font-bold text-brand-text">{userStats.totalImages}</span>
-              </div>
-              <p className="text-sm text-gray-500 mt-2">Images Generated</p>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
-                  <Heart size={20} className="text-amber-600" />
-                </div>
-                <span className="text-2xl font-bold text-brand-text">{userStats.engagement}%</span>
-              </div>
-              <p className="text-sm text-gray-500 mt-2">Engagement Score</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Welcome Message Section */}
-        <div className="max-w-5xl mx-auto px-6 py-8 flex-grow">
-          <div className="bg-gradient-to-r from-brand-primary/5 to-transparent rounded-2xl p-8 border border-brand-primary/10">
-            <div className="flex items-center gap-3 mb-4">
-              <LayoutDashboard size={28} className="text-brand-primary" />
-              <h2 className="text-2xl font-bold text-brand-text">Welcome to Your Dashboard</h2>
-            </div>
-            <p className="text-gray-600 leading-relaxed">
-              Empowering artisans with the magic of AI. We help you create, market, and grow your craft business 
-              by turning your art into compelling social media content. Start by creating captions or generating 
-              stunning visuals for your products!
-            </p>
-            <div className="flex flex-wrap gap-4 mt-6">
-              <Link 
-                to="/generate"
-                className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors"
-              >
-                <Sparkles size={18} />
-                Create Captions
-              </Link>
-              <Link 
-                to="/photo"
-                className="flex items-center gap-2 px-4 py-2 border border-brand-primary text-brand-primary rounded-lg hover:bg-brand-primary/10 transition-colors"
-              >
-                <ImageIcon size={18} />
-                Generate Images
-              </Link>
-              <Link 
-                to="/mystuff"
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <FolderOpen size={18} />
-                View My Creations
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <Footer />
-      </div>
-
-      {/* Edit Profile Modal (same as before) */}
       {/* Edit Profile Modal */}
-{showEditModal && (
-  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-      <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex justify-between items-center">
-        <h2 className="text-xl font-bold text-brand-text">Edit Profile</h2>
-        <button onClick={() => setShowEditModal(false)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-          <X size={20} />
-        </button>
-      </div>
-      
-      <div className="p-6 space-y-4">
-        {/* Name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
-          <input
-            type="text"
-            value={formData.name !== undefined ? formData.name : (userData?.u_name || '')}
-            onChange={(e) => handleInputChange('name', e.target.value)}
-            placeholder="Your full name"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
-          />
-          <p className="text-xs text-gray-400 mt-1">This name will be displayed on your profile</p>
-        </div>
+      <AnimatePresence>
+        {showEditModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[100] p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-[#130826] border border-white/10 rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden"
+            >
+              <div className="bg-[#0c0516] border-b border-white/5 p-5 flex justify-between items-center shrink-0">
+                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <Edit3 className="text-purple-400" /> Edit Profile
+                </h2>
+                <button onClick={() => setShowEditModal(false)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-all">
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className="p-6 md:p-8 space-y-6 overflow-y-auto custom-scrollbar">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Name */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">Display Name</label>
+                    <input
+                      type="text"
+                      value={formData.name !== undefined ? formData.name : (userData?.u_name || '')}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      placeholder="Your full name"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                    />
+                  </div>
 
-        {/* Avatar URL */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Profile Picture URL</label>
-          <input
-            type="text"
-            value={formData.avatar || ''}
-            onChange={(e) => handleInputChange('avatar', e.target.value)}
-            placeholder="https://example.com/avatar.jpg"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
-          />
-        </div>
+                  {/* Country */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">Location</label>
+                    <input
+                      type="text"
+                      value={formData.country || ''}
+                      onChange={(e) => handleInputChange('country', e.target.value)}
+                      placeholder="e.g., India, USA, UK"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                    />
+                  </div>
+                </div>
 
-        {/* Country */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Country / Region</label>
-          <input
-            type="text"
-            value={formData.country || ''}
-            onChange={(e) => handleInputChange('country', e.target.value)}
-            placeholder="e.g., India, USA, UK"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
-          />
-        </div>
+                {/* Avatar URL */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">Profile Picture URL</label>
+                  <input
+                    type="text"
+                    value={formData.avatar || ''}
+                    onChange={(e) => handleInputChange('avatar', e.target.value)}
+                    placeholder="https://example.com/avatar.jpg"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">Leave blank to use uploaded image</p>
+                </div>
 
-        {/* Bio */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-          <textarea
-            value={formData.bio || ''}
-            onChange={(e) => handleInputChange('bio', e.target.value)}
-            placeholder="Tell us about your craft journey..."
-            rows="3"
-            maxLength="150"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
-          />
-          <p className="text-xs text-gray-400 mt-1">Max 150 characters</p>
-        </div>
+                {/* Bio */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">Biography</label>
+                  <textarea
+                    value={formData.bio || ''}
+                    onChange={(e) => handleInputChange('bio', e.target.value)}
+                    placeholder="Tell us about your craft journey..."
+                    rows="3"
+                    maxLength="150"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none resize-none"
+                  />
+                  <div className="flex justify-end mt-1">
+                    <span className="text-xs text-gray-500">{formData.bio?.length || 0}/150</span>
+                  </div>
+                </div>
 
-        {/* Craft Specialties */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Craft Specialties</label>
-          <input
-            type="text"
-            value={formData.specialties?.join(', ') || ''}
-            onChange={handleSpecialtyChange}
-            placeholder="e.g., Pottery, Woodworking, Textile Art"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
-          />
-          <p className="text-xs text-gray-400 mt-1">Separate specialties with commas</p>
-        </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Craft Specialties */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">Specialties</label>
+                    <input
+                      type="text"
+                      value={formData.specialties?.join(', ') || ''}
+                      onChange={handleSpecialtyChange}
+                      placeholder="e.g., Pottery, 3D Art"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                    />
+                     <p className="text-xs text-gray-500 mt-2">Comma separated</p>
+                  </div>
 
-        {/* Years of Experience */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Years of Experience</label>
-          <input
-            type="number"
-            value={formData.experience || ''}
-            onChange={(e) => handleInputChange('experience', e.target.value)}
-            placeholder="e.g., 5"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
-          />
-        </div>
+                  {/* Years of Experience */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">Years Active</label>
+                    <input
+                      type="number"
+                      value={formData.experience || ''}
+                      onChange={(e) => handleInputChange('experience', e.target.value)}
+                      placeholder="e.g., 5"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                    />
+                  </div>
+                </div>
 
-        {/* Favorite Materials */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Favorite Materials</label>
-          <input
-            type="text"
-            value={formData.favoriteMaterials?.join(', ') || ''}
-            onChange={handleMaterialsChange}
-            placeholder="e.g., Clay, Wood, Cotton"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
-          />
-          <p className="text-xs text-gray-400 mt-1">Separate materials with commas</p>
-        </div>
-
-        {/* Social Links */}
-        <div className="space-y-3">
-          <h3 className="font-medium text-gray-700">Social Links</h3>
-          <div>
-            <label className="block text-sm text-gray-500 mb-1">Instagram</label>
-            <input
-              type="url"
-              value={formData.instagram || ''}
-              onChange={(e) => handleInputChange('instagram', e.target.value)}
-              placeholder="https://instagram.com/yourprofile"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-500 mb-1">YouTube</label>
-            <input
-              type="url"
-              value={formData.youtube || ''}
-              onChange={(e) => handleInputChange('youtube', e.target.value)}
-              placeholder="https://youtube.com/@yourchannel"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-500 mb-1">Website / Portfolio</label>
-            <input
-              type="url"
-              value={formData.website || ''}
-              onChange={(e) => handleInputChange('website', e.target.value)}
-              placeholder="https://yourportfolio.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4 flex justify-end gap-3">
-        <button
-          onClick={() => setShowEditModal(false)}
-          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleSaveProfile}
-          disabled={saving}
-          className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors disabled:opacity-50"
-        >
-          {saving ? <Loader2 className="animate-spin" size={18} /> : 'Save Changes'}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+                {/* Social Links */}
+                <div className="pt-4 border-t border-white/5">
+                  <h3 className="font-bold text-white mb-4 flex items-center gap-2"><Globe className="text-pink-400"/> Digital Footprint</h3>
+                  <div className="space-y-4">
+                    <div className="relative">
+                      <Instagram className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+                      <input
+                        type="url"
+                        value={formData.instagram || ''}
+                        onChange={(e) => handleInputChange('instagram', e.target.value)}
+                        placeholder="Instagram URL"
+                        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-pink-500 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="relative">
+                      <Youtube className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+                      <input
+                        type="url"
+                        value={formData.youtube || ''}
+                        onChange={(e) => handleInputChange('youtube', e.target.value)}
+                        placeholder="YouTube URL"
+                        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="relative">
+                      <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+                      <input
+                        type="url"
+                        value={formData.website || ''}
+                        onChange={(e) => handleInputChange('website', e.target.value)}
+                        placeholder="Portfolio Website URL"
+                        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-[#0c0516] border-t border-white/5 p-5 flex justify-end gap-4 shrink-0">
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="px-6 py-3 border border-white/10 text-gray-300 hover:text-white rounded-xl hover:bg-white/5 transition-all font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveProfile}
+                  disabled={saving}
+                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-[0_0_20px_rgba(236,72,153,0.4)] transition-all font-bold disabled:opacity-50 flex items-center gap-2"
+                >
+                  {saving ? <Loader2 className="animate-spin" size={20} /> : <><Sparkles size={20} /> Save Profile</>}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Logout Confirmation Modal */}
-      {showLogoutConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
-            <h3 className="text-xl font-bold text-brand-text mb-3">Confirm Logout</h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to logout? You'll need to sign in again to access your profile.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowLogoutConfirm(false)}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {showLogoutConfirm && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[100]"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-[#130826] border border-white/10 rounded-3xl p-8 max-w-md w-full mx-4 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+            >
+              <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
+                <LogOut size={32} className="text-red-500" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3 text-center">Disconnect Vault</h3>
+              <p className="text-gray-400 mb-8 text-center leading-relaxed">
+                Are you sure you want to log out? You'll need to sign in again to access and manage your portfolio.
+              </p>
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="flex-1 px-6 py-3 border border-gray-600 text-gray-300 hover:text-white rounded-xl hover:bg-white/5 transition-all font-semibold"
+                >
+                  Stay
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all font-semibold"
+                >
+                  Logout
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Remove Avatar Confirmation Modal */}
-      {showRemoveConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
-            <h3 className="text-xl font-bold text-brand-text mb-3">Remove Profile Picture</h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to remove your profile picture?
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowRemoveConfirm(false)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleRemoveAvatar}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-              >
-                Remove
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {showRemoveConfirm && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[100]"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-[#130826] border border-white/10 rounded-3xl p-8 max-w-md w-full mx-4 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+            >
+              <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
+                <Trash2 size={32} className="text-red-500" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3 text-center">Remove Picture</h3>
+              <p className="text-gray-400 mb-8 text-center leading-relaxed">
+                Are you sure you want to remove your profile picture? This action is immediate.
+              </p>
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => setShowRemoveConfirm(false)}
+                  className="flex-1 px-6 py-3 border border-gray-600 text-gray-300 hover:text-white rounded-xl hover:bg-white/5 transition-all font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRemoveAvatar}
+                  disabled={uploading}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all font-semibold disabled:opacity-50"
+                >
+                  Remove
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

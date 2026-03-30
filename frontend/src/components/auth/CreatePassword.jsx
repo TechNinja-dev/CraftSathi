@@ -74,92 +74,92 @@ const CreatePassword = ({ email, onPasswordSet, onBack, loading, isVisible }) =>
   if (!isVisible) return null;
 
   return (
-    <div className="w-full max-w-sm animate-slide-in-right">
+    <div className="w-full max-w-sm mx-auto animate-slide-in-right">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-          <CheckCircle className="w-8 h-8 text-brand-primary" />
+        <div className="w-16 h-16 bg-purple-500/10 border border-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+          <CheckCircle className="w-8 h-8 text-purple-400" />
         </div>
-        <h2 className="text-2xl font-bold text-brand-text font-display">
-          Create Your Password
+        <h2 className="text-3xl font-bold text-white font-display tracking-tight mb-2">
+          Secure Your Vault
         </h2>
-        <p className="text-gray-500 mt-2">
-          Set a password for {email}
+        <p className="text-gray-400 mt-2">
+          Set a password for <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 font-bold">{email}</span>
         </p>
-        <p className="text-xs text-gray-400 mt-1">
-          This will allow you to login with email/password in the future
+        <p className="text-xs text-gray-500 mt-2 font-medium uppercase tracking-wider">
+          For future email/password access
         </p>
       </div>
 
       {/* Back button */}
       <button
         onClick={onBack}
-        className="mb-6 flex items-center gap-2 text-gray-500 hover:text-brand-primary transition-colors"
+        className="mb-6 flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
       >
-        <ArrowLeft size={18} />
-        <span className="text-sm">Back</span>
+        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+        <span className="text-sm font-semibold uppercase tracking-wider">Back</span>
       </button>
 
       {/* Password Field */}
-      <div className="relative mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Password
+      <div className="relative mb-5">
+        <label className="block text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider">
+          New Password
         </label>
         <input
           type={showPassword ? 'text' : 'password'}
           value={password}
           onChange={handlePasswordChange}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
+          className="w-full px-4 py-3 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
           placeholder="Create a strong password"
         />
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-10 text-gray-500"
+          className="absolute right-4 top-10 text-gray-400 hover:text-white transition-colors"
         >
-          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
       </div>
 
       {/* Password Strength Indicator */}
       {password && (
-        <div className="mb-4">
-          <p className="text-xs text-gray-500 mb-2">Password strength:</p>
-          <div className="flex gap-1 mb-2">
+        <div className="mb-6 bg-white/5 p-4 rounded-xl border border-white/5">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Strength Indicator</p>
+          <div className="flex gap-2 mb-4">
             {Object.values(passwordStrength).map((valid, idx) => (
               <div
                 key={idx}
-                className={`h-1 flex-1 rounded-full ${valid ? 'bg-green-500' : 'bg-gray-200'}`}
+                className={`h-1.5 flex-1 rounded-full bg-gradient-to-r transition-all duration-300 ${valid ? 'from-purple-500 to-pink-500 shadow-[0_0_8px_rgba(236,72,153,0.5)]' : 'from-gray-600 to-gray-700'}`}
               />
             ))}
           </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-            <div className={`flex items-center gap-1 ${passwordStrength.length ? 'text-green-600' : 'text-gray-400'}`}>
-              {passwordStrength.length ? <CheckCircle size={12} /> : <XCircle size={12} />}
-              <span>At least 8 characters</span>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs font-medium">
+            <div className={`flex items-center gap-2 ${passwordStrength.length ? 'text-pink-400' : 'text-gray-500'}`}>
+              {passwordStrength.length ? <CheckCircle size={14} /> : <XCircle size={14} />}
+              <span>8+ characters</span>
             </div>
-            <div className={`flex items-center gap-1 ${passwordStrength.uppercase ? 'text-green-600' : 'text-gray-400'}`}>
-              {passwordStrength.uppercase ? <CheckCircle size={12} /> : <XCircle size={12} />}
-              <span>Uppercase letter</span>
+            <div className={`flex items-center gap-2 ${passwordStrength.uppercase ? 'text-pink-400' : 'text-gray-500'}`}>
+              {passwordStrength.uppercase ? <CheckCircle size={14} /> : <XCircle size={14} />}
+              <span>Uppercase</span>
             </div>
-            <div className={`flex items-center gap-1 ${passwordStrength.lowercase ? 'text-green-600' : 'text-gray-400'}`}>
-              {passwordStrength.lowercase ? <CheckCircle size={12} /> : <XCircle size={12} />}
-              <span>Lowercase letter</span>
+            <div className={`flex items-center gap-2 ${passwordStrength.lowercase ? 'text-pink-400' : 'text-gray-500'}`}>
+              {passwordStrength.lowercase ? <CheckCircle size={14} /> : <XCircle size={14} />}
+              <span>Lowercase</span>
             </div>
-            <div className={`flex items-center gap-1 ${passwordStrength.number ? 'text-green-600' : 'text-gray-400'}`}>
-              {passwordStrength.number ? <CheckCircle size={12} /> : <XCircle size={12} />}
+            <div className={`flex items-center gap-2 ${passwordStrength.number ? 'text-pink-400' : 'text-gray-500'}`}>
+              {passwordStrength.number ? <CheckCircle size={14} /> : <XCircle size={14} />}
               <span>Number</span>
             </div>
-            <div className={`flex items-center gap-1 ${passwordStrength.special ? 'text-green-600' : 'text-gray-400'}`}>
-              {passwordStrength.special ? <CheckCircle size={12} /> : <XCircle size={12} />}
-              <span>Special character</span>
+            <div className={`flex items-center gap-2 ${passwordStrength.special ? 'text-pink-400' : 'text-gray-500'}`}>
+              {passwordStrength.special ? <CheckCircle size={14} /> : <XCircle size={14} />}
+              <span>Special char</span>
             </div>
           </div>
         </div>
       )}
 
       {/* Confirm Password Field */}
-      <div className="relative mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+      <div className="relative mb-8">
+        <label className="block text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider">
           Confirm Password
         </label>
         <input
@@ -169,21 +169,21 @@ const CreatePassword = ({ email, onPasswordSet, onBack, loading, isVisible }) =>
             setConfirmPassword(e.target.value);
             if (error) setError('');
           }}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary"
+          className="w-full px-4 py-3 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
           placeholder="Confirm your password"
         />
         <button
           type="button"
           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-          className="absolute right-3 top-10 text-gray-500"
+          className="absolute right-4 top-10 text-gray-400 hover:text-white transition-colors"
         >
-          {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm text-center">
+        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-sm text-center backdrop-blur-sm">
           {error}
         </div>
       )}
@@ -192,21 +192,17 @@ const CreatePassword = ({ email, onPasswordSet, onBack, loading, isVisible }) =>
       <button
         onClick={handleSubmit}
         disabled={loading}
-        className="w-full py-3 px-4 bg-brand-primary text-white font-semibold rounded-lg shadow-md hover:bg-brand-primary-hover transition-colors disabled:opacity-50 disabled:cursor-wait"
+        className="w-full py-4 px-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(236,72,153,0.3)] hover:shadow-[0_0_25px_rgba(236,72,153,0.5)] transition-all duration-300 disabled:opacity-50 disabled:cursor-wait"
       >
         {loading ? (
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            Setting Password...
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            <span>Encrypting...</span>
           </div>
         ) : (
-          'Set Password & Continue'
+          'Secure Vault & Continue'
         )}
       </button>
-
-      <p className="text-center text-xs text-gray-400 mt-4">
-        This password will be used for future email/password logins
-      </p>
     </div>
   );
 };
