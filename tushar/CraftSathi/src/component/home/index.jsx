@@ -13,7 +13,6 @@ const AIAssistant = React.lazy(() => import('./AIAssistant'));
 const JourneyTimeline = React.lazy(() => import('./JourneyTimeline'));
 const CommunityNetwork = React.lazy(() => import('./CommunityNetwork'));
 const TrustSection = React.lazy(() => import('./TrustSection'));
-const AIStoryGeneratorDemo = React.lazy(() => import('./AIStoryGeneratorDemo'));
 const InteractiveCraftMap = React.lazy(() => import('./InteractiveCraftMap'));
 const LiveArtisanProfiles = React.lazy(() => import('./LiveArtisanProfiles'));
 const VirtualCraftExhibition = React.lazy(() => import('./VirtualCraftExhibition'));
@@ -61,7 +60,6 @@ const Home = () => {
                 <Mission />
                 <KeyFeatures />
                 <ArtisanShowcase />
-                <AIStoryGeneratorDemo />
                 <MarketplacePreview />
                 <AIAssistant />
                 <JourneyTimeline />
