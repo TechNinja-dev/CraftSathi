@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { Loader2, Trash2, Download, Bookmark, Image as ImageIcon, ChevronRight, Calendar, ChevronDown, ChevronUp, Copy, Check, Sparkles, Award } from 'lucide-react';
+import { Loader2, Trash2, Download, Bookmark, Image as ImageIcon, Video, ChevronRight, Calendar, ChevronDown, ChevronUp, Copy, Check, Sparkles, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from './Footer.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
@@ -13,6 +13,11 @@ const MyStuff = () => {
   const [generatedImages, setGeneratedImages] = useState([]);
   const [savedCaptions, setSavedCaptions] = useState([]);
   const [totalCaptionsCount, setTotalCaptionsCount] = useState(0);
+  
+  const [generatedVideos, setGeneratedVideos] = useState([]);
+  const [loadingVideos, setLoadingVideos] = useState(false);
+  const [videoError, setVideoError] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [loadingCaptions, setLoadingCaptions] = useState(false);
   const [error, setError] = useState(null);
@@ -77,10 +82,29 @@ const MyStuff = () => {
     }
   };
 
+  const fetchVideos = async () => {
+    if (!isAuthenticated || !userData) return;
+    setLoadingVideos(true);
+    setVideoError(null);
+    try {
+      const userId = userData.u_Id || userData.uid;
+      const response = await fetch(`${API_URL}/api/get-videos?userId=${userId}`);
+      if (!response.ok) throw new Error('Failed to fetch videos');
+      const data = await response.json();
+      setGeneratedVideos(data.videos || []);
+    } catch (err) {
+      console.error('Error fetching videos:', err);
+      setVideoError(err.message);
+    } finally {
+      setLoadingVideos(false);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated && userData) {
       fetchImages();
       fetchSavedCaptions();
+      fetchVideos();
     } else {
       setLoading(false);
     }
@@ -112,6 +136,14 @@ const MyStuff = () => {
         
         await fetchImages();
         showToast('Image deleted successfully!', 'success');
+        
+      } else if (deleteType === 'video') {
+        const response = await fetch(`${API_URL}/api/delete-video?videoId=${itemToDelete.item.id}&userId=${userId}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) throw new Error('Failed to delete video.');
+        await fetchVideos();
+        showToast('Video deleted successfully!', 'success');
         
       } else if (deleteType === 'caption') {
         // Delete individual caption
@@ -181,6 +213,30 @@ const MyStuff = () => {
     } catch (err) {
       console.error('Error downloading image:', err);
       showToast('Failed to download image', 'error');
+    }
+  };
+
+  const downloadVideo = async (videoUrl, index) => {
+    try {
+      if (videoUrl.startsWith('data:video')) {
+        const link = document.createElement('a');
+        link.download = `craft-video-${Date.now()}-${index}.mp4`;
+        link.href = videoUrl;
+        link.click();
+      } else {
+        const response = await fetch(videoUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `craft-video-${Date.now()}-${index}.mp4`;
+        link.href = url;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      }
+      showToast('Video downloaded!', 'success');
+    } catch (err) {
+      console.error('Error downloading video:', err);
+      showToast('Failed to download video', 'error');
     }
   };
 
@@ -297,6 +353,20 @@ const MyStuff = () => {
               </span>
             </button>
             <button
+              onClick={() => setActiveTab('videos')}
+              className={`px-8 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-3 ${
+                activeTab === 'videos'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-[0_0_20px_rgba(236,72,153,0.3)]'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Video size={20} />
+              <span>Video Ads</span>
+              <span className={`text-xs px-2 py-0.5 rounded-full ${activeTab === 'videos' ? 'bg-white/20 text-white' : 'bg-white/10 text-gray-400'}`}>
+                {generatedVideos.length}
+              </span>
+            </button>
+            <button
               onClick={() => setActiveTab('captions')}
               className={`px-8 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-3 ${
                 activeTab === 'captions'
@@ -377,6 +447,78 @@ const MyStuff = () => {
                         <div className="flex items-center gap-2 mt-auto text-xs text-gray-500 font-semibold uppercase tracking-wider">
                           <Calendar size={14} className="text-purple-400/70" />
                           <span>{formatDate(image.created_at)}</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Videos Tab */}
+          {activeTab === 'videos' && (
+            <motion.div 
+              key="videos"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+            >
+              {generatedVideos.length === 0 ? (
+                <div className="text-center py-20 bg-[#130826]/40 backdrop-blur-sm border border-white/5 rounded-3xl shadow-xl max-w-3xl mx-auto">
+                  <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10">
+                    <Video size={40} className="text-gray-500" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-2">No Videos Yet</h3>
+                  <p className="text-gray-400 text-lg mb-8 max-w-md mx-auto">You haven't generated any video advertisements. Time to get motion into your craft.</p>
+                  <Link 
+                    to="/photo"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all border border-white/10 hover:border-purple-500/50 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]"
+                  >
+                    <Sparkles size={20} className="text-purple-400" />
+                    Generate Video Ad
+                  </Link>
+                </div>
+              ) : (
+                <motion.div 
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="show"
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                >
+                  {generatedVideos.map((video, idx) => (
+                    <motion.div variants={itemVariants} key={video.id} className="bg-[#130826]/60 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden hover:shadow-[0_0_25px_rgba(168,85,247,0.15)] hover:border-purple-500/30 transition-all duration-300 group flex flex-col">
+                      <div className="relative aspect-video bg-black/40 overflow-hidden">
+                        <video 
+                          src={video.video_url} 
+                          controls
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <button
+                            onClick={() => downloadVideo(video.video_url, idx)}
+                            className="w-10 h-10 bg-[#0c0516]/80 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center hover:bg-emerald-500 hover:border-emerald-400 hover:scale-110 transition-all text-white shadow-lg z-10"
+                            title="Download"
+                          >
+                            <Download size={16} strokeWidth={2.5} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(video, 'video')}
+                            className="w-10 h-10 bg-[#0c0516]/80 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center hover:bg-red-500 hover:border-red-400 hover:scale-110 transition-all text-white shadow-lg z-10"
+                            title="Delete"
+                          >
+                            <Trash2 size={16} strokeWidth={2.5} />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="p-5 flex-grow flex flex-col justify-between">
+                        <p className="text-gray-300 text-sm line-clamp-2 leading-relaxed font-medium mb-4">
+                          "{video.prompt || 'Untitled Video Ad'}"
+                        </p>
+                        <div className="flex items-center gap-2 mt-auto text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                          <Calendar size={14} className="text-purple-400/70" />
+                          <span>{formatDate(video.created_at)}</span>
                         </div>
                       </div>
                     </motion.div>
@@ -571,6 +713,8 @@ const MyStuff = () => {
                   ? 'Are you sure you want to delete this caption? This action cannot be undone.'
                   : deleteType === 'captionGroup'
                   ? 'Are you sure you want to delete all captions for this image? This action cannot be undone.'
+                  : deleteType === 'video'
+                  ? 'Are you sure you want to delete this video advertisement? This action cannot be undone.'
                   : 'Are you sure you want to delete this generated artwork? This action cannot be undone.'}
               </p>
               <div className="flex gap-4 justify-center">

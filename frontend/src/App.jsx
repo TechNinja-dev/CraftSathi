@@ -7,6 +7,7 @@ import WelcomePage from './pages/WelcomePage.jsx';
 import AuthPage from './pages/AuthPage.jsx';
 import Navbar from './components/layout/Navbar.jsx';
 import AboutPage from './pages/about.jsx';
+import GuidanceLayout from './pages/guidance/GuidanceLayout.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import  Profile  from './components/layout/Profile.jsx';
 import NetworkPage from './components/layout/Network/NetworkPage.jsx';
@@ -22,6 +23,7 @@ function App() {
         <Route path="/photo" element={<Photo />} />
         <Route path="/mystuff" element={<MyStuff />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/guidance" element={<GuidanceLayout />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/network" element={<NetworkPage />} />
         <Route path="*" element={<Navigate to="/" />} />

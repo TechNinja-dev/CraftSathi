@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Menu, X, User, Feather, PenTool, Image as ImageIcon, Network, Folder, LogIn } from 'lucide-react';
+import { Menu, X, User, Feather, PenTool, Image as ImageIcon, Network, Folder, LogIn, Info, Sparkles, ChevronDown, Map } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
@@ -9,6 +9,8 @@ const Navbar = () => {
   const { isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,10 +25,10 @@ const Navbar = () => {
   }
 
   const navLinks = [
-    { name: 'Caption', path: '/generate', icon: <PenTool size={16} /> },
-    { name: 'Posts', path: '/photo', icon: <ImageIcon size={16} /> },
+    { name: 'Guidance', path: '/guidance', icon: <Map size={16} /> },
     { name: 'Network', path: '/network', icon: <Network size={16} /> },
-    { name: 'MyStuff', path: '/mystuff', icon: <Folder size={16} /> }
+    { name: 'MyStuff', path: '/mystuff', icon: <Folder size={16} /> },
+    { name: 'About', path: '/about', icon: <Info size={16} /> }
   ];
 
   return (
@@ -53,6 +55,38 @@ const Navbar = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex flex-1 justify-end mr-6 items-center space-x-1">
+              
+              {/* Services Dropdown */}
+              <div 
+                className="relative group block"
+                onMouseEnter={() => setServicesOpen(true)}
+                onMouseLeave={() => setServicesOpen(false)}
+              >
+                <button className="text-gray-300 hover:text-white hover:bg-white/10 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center">
+                  <Sparkles size={16} className="mr-2 text-purple-400" />
+                  Services
+                  <ChevronDown size={14} className={`ml-1 transition-transform ${servicesOpen ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {servicesOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute top-full left-0 mt-2 w-56 rounded-2xl bg-[#130826]/95 backdrop-blur-xl border border-purple-500/30 shadow-[0_10px_40px_rgba(168,85,247,0.2)] overflow-hidden z-50 flex flex-col p-2"
+                    >
+                      <Link to="/photo" className="flex items-center px-4 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-purple-500/20 rounded-xl transition-all">
+                        <ImageIcon size={16} className="mr-3 text-emerald-400" /> Posts/Ads
+                      </Link>
+                      <Link to="/generate" className="flex items-center px-4 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-pink-500/20 rounded-xl transition-all">
+                        <PenTool size={16} className="mr-3 text-pink-400" /> Captions/Descriptions
+                      </Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
@@ -108,6 +142,37 @@ const Navbar = () => {
             className="md:hidden absolute top-full left-4 right-4 mt-2 rounded-2xl bg-[#130826]/95 backdrop-blur-xl border border-purple-500/30 shadow-2xl overflow-hidden z-40"
           >
             <div className="px-4 py-6 space-y-2">
+              {/* Mobile Services Accordion */}
+              <div>
+                <button
+                  onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 text-gray-300 hover:text-white hover:bg-white/5"
+                >
+                  <div className="flex items-center">
+                    <Sparkles size={16} className="mr-3 text-purple-400" />
+                    Services
+                  </div>
+                  <ChevronDown size={16} className={`transition-transform duration-300 ${mobileServicesOpen ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {mobileServicesOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden bg-black/20 rounded-xl mt-1 mx-2"
+                    >
+                      <Link to="/photo" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-purple-500/20 transition-all border-b border-white/5">
+                        <ImageIcon size={16} className="mr-3 text-emerald-400" /> Posts & Videos
+                      </Link>
+                      <Link to="/generate" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-pink-500/20 transition-all">
+                        <PenTool size={16} className="mr-3 text-pink-400" /> Captions
+                      </Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               {navLinks.map((link) => (
                 <Link
                   key={link.name}

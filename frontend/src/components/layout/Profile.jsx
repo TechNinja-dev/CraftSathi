@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { 
-  Loader2, Camera, Mail, Calendar, Image as ImageIcon, 
+  Loader2, Camera, Mail, Calendar, Image as ImageIcon, Video,
   Sparkles, LogOut, Home, Captions, FolderOpen, 
   Info, TrendingUp, Heart, Eye, User, LayoutDashboard,
   AlertCircle, Edit3, X, Globe, Briefcase, Link as LinkIcon,
@@ -41,6 +41,7 @@ const Profile = () => {
     memberSince: '',
     totalCaptions: 0,
     totalImages: 0,
+    totalVideos: 0,
     engagement: 0
   });
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
@@ -164,6 +165,7 @@ const handleRemoveAvatar = async () => {
         memberSince: data.memberSince || new Date().toISOString(),
         totalCaptions: data.totalCaptions || 0,
         totalImages: data.totalImages || 0,
+        totalVideos: data.totalVideos || 0,
         engagement: Math.floor(Math.random() * 100)
       });
 
@@ -497,13 +499,13 @@ const handleSaveProfile = async () => {
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
                 <TrendingUp className="text-purple-400" /> Career Analytics
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
                 <div className="bg-[#0c0516] rounded-2xl p-5 border border-white/5 text-center group hover:border-purple-500/30 transition-colors">
                   <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
                     <LayoutDashboard size={24} className="text-purple-400" />
                   </div>
                   <h3 className="text-3xl font-extrabold text-white mb-1"><CountUp end={userStats.totalPosts} /></h3>
-                  <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Total Posts</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Total Assets</p>
                 </div>
                 <div className="bg-[#0c0516] rounded-2xl p-5 border border-white/5 text-center group hover:border-pink-500/30 transition-colors">
                   <div className="w-12 h-12 bg-pink-500/10 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
@@ -517,16 +519,22 @@ const handleSaveProfile = async () => {
                     <ImageIcon size={24} className="text-emerald-400" />
                   </div>
                   <h3 className="text-3xl font-extrabold text-white mb-1"><CountUp end={userStats.totalImages} /></h3>
-                  <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Images</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Posts</p>
                 </div>
-                <div className="bg-[#0c0516] rounded-2xl p-5 border border-white/5 text-center group hover:border-amber-500/30 transition-colors">
-                  <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                    <Heart size={24} className="text-amber-400" />
+                <div className="bg-[#0c0516] rounded-2xl p-5 border border-white/5 text-center group hover:border-blue-500/30 transition-colors">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                    <Video size={24} className="text-blue-400" />
                   </div>
-                  <h3 className="text-3xl font-extrabold text-white mb-1"><CountUp end={userStats.engagement} />%</h3>
-                  <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Engagement</p>
+                  <h3 className="text-3xl font-extrabold text-white mb-1"><CountUp end={userStats.totalVideos} /></h3>
+                  <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Video Ads</p>
                 </div>
               </div>
+              
+              <Link to="/mystuff" className="w-full flex items-center justify-center p-4 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 hover:border-purple-500/40 rounded-xl transition-all font-bold group mt-2">
+                <FolderOpen size={18} className="mr-2" /> 
+                Open My Vault
+                <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </motion.div>
 
             <motion.div 
@@ -544,7 +552,7 @@ const handleSaveProfile = async () => {
                 </p>
                 <div className="space-y-3">
                   <Link to="/photo" className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/30 rounded-xl transition-all group">
-                    <div className="flex items-center gap-3"><ImageIcon className="text-purple-400" size={20} /><span className="text-gray-200 font-semibold">AI Image Lab</span></div>
+                    <div className="flex items-center gap-3"><Sparkles className="text-purple-400" size={20} /><span className="text-gray-200 font-semibold">AI Creator Studio</span></div>
                     <ChevronRight className="text-gray-500 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" size={18} />
                   </Link>
                   <Link to="/generate" className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-pink-500/30 rounded-xl transition-all group">
