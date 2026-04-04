@@ -1,5 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException,Form
-from app.services.ai_service import generate_caption, generate_image
+from app.services.ai_service import generate_caption, generate_image, generate_video as generate_video_service
 from app.models.ai_models import *
 
 router = APIRouter(prefix="/api", tags=["AI"])
@@ -22,3 +22,13 @@ async def generate_photo(request: PhotoRequest):
     if not result:
         raise HTTPException(status_code=500, detail="Image generation failed")
     return {"image_url": result}
+
+
+@router.post("/generate-video")
+async def generate_video(request: VideoRequest):
+    result = generate_video_service(request.prompt, request.userId)
+    if isinstance(result, dict) and "message" in result:
+        return result
+    if not result:
+        raise HTTPException(status_code=500, detail="Video generation failed")
+    return {"video_url": result}

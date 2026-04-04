@@ -20,7 +20,8 @@ async def get_profile(userId: str):
         # print(dash_stats)
         total_images = int(dash_stats.get("total_images_generated", 0) if dash_stats else 0)
         total_captions = int(dash_stats.get("total_captions_generated", 0) if dash_stats else 0)
-        total_posts = total_images + total_captions
+        total_videos = int(dash_stats.get("total_videos_generated", 0) if dash_stats else 0)
+        total_posts = total_images + total_captions + total_videos
         print("images ",total_images," Total captions ",total_captions)
         print(total_posts)
         
@@ -66,6 +67,7 @@ async def get_profile(userId: str):
             "posts": total_posts,
             "totalCaptions": total_captions,
             "totalImages": total_images,
+            "totalVideos": total_videos,
             "memberSince": member_since.isoformat() if isinstance(member_since, datetime) else member_since
         }
         

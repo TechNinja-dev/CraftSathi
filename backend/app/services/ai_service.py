@@ -3,7 +3,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import base64
-from app.db.mongodb import user_col,images_col,users_dash_col
+from app.db.mongodb import user_col,images_col,users_dash_col,videos_col
 import datetime
 import requests
 from huggingface_hub import InferenceClient
@@ -265,3 +265,113 @@ def enhance_prompt_with_ai(user_prompt):
     except Exception as e:
         print(f"Prompt enhancement error: {str(e)}")
         return user_prompt  # Fallback to original prompt
+
+def enhance_video_prompt(user_prompt):
+    """
+    Use OpenRouter with Gemma 3B to enhance the user prompt for better Pexels search results
+    """
+    try:
+        enhancement_prompt = f"""Convert this craft/artisan product description into a clear, natural, and visually descriptive search query for high-quality stock videos on Pexels.
+
+            Rules:
+            - Return ONLY the final search query, no explanations
+            - Keep it concise, 2-5 keywords maximum
+            - Focus on visually prominent subjects (e.g., 'pottery making', 'painting canvas', 'wood carving in workshop')
+            - Do NOT use sentences
+
+            User description: {user_prompt}
+
+            Search query:"""
+        
+        response = client.chat.completions.create(
+            model="google/gemma-3-4b-it:free",
+            messages=[
+                {
+                    "role": "user",
+                    "content": enhancement_prompt
+                }
+            ],
+            max_tokens=20,
+            temperature=0.7
+        )
+        
+        enhanced_query = response.choices[0].message.content.strip()
+        enhanced_query = enhanced_query.strip('"').strip("'").strip()
+        
+        if not enhanced_query or len(enhanced_query) < 2:
+            print(f"Enhancement returned empty, using original prompt")
+            enhanced_query = user_prompt
+        
+        return enhanced_query
+        
+    except Exception as e:
+        print(f"Video prompt enhancement error: {str(e)}")
+        return user_prompt
+
+def generate_video(prompt, userId=None):
+    """
+    Enhance user prompt using AI, then generate a video advertisement from Pexels API.
+    """
+    try:
+        ensured = prompt_filter(prompt)
+        if ensured != True:
+            return {"message": ensured}
+            
+        enhanced_prompt = enhance_video_prompt(prompt)
+        print(f"Original video prompt: {prompt}")
+        print(f"Enhanced video prompt: {enhanced_prompt}")
+        
+        video_key = os.getenv("video_key")
+        if not video_key:
+            print("video_key not found in environment variables")
+            return None
+            
+        encoded_query = requests.utils.quote(enhanced_prompt)
+        url = f"https://api.pexels.com/videos/search?query={encoded_query}&per_page=1"
+        
+        headers = {
+            "Authorization": video_key
+        }
+        
+        response = requests.get(url, headers=headers, timeout=30)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("videos") and len(data["videos"]) > 0:
+                video_files = data["videos"][0].get("video_files", [])
+                if video_files:
+                    # Select the first available video file Link
+                    video_url = video_files[0]["link"]
+                    print(f"✅ Video generated successfully: {video_url}")
+                    
+                    if video_url and userId:
+                        print("Got user", userId, "video_url", video_url)
+                        user_doc = user_col.find_one({"u_Id": userId})
+                        if user_doc:
+                            print("Saving Video to DB")
+                            videos_col.insert_one({
+                                "user_id": user_doc["_id"],
+                                "prompt": prompt,
+                                "enhanced_prompt": enhanced_prompt,
+                                "video_url": video_url,
+                                "created_at": datetime.datetime.utcnow()
+                            })
+                            print("Saved Video to DB")
+                            
+                            users_dash_col.update_one(
+                                {"u_Id": userId},
+                                {"$inc": {"total_videos_generated": 1}},
+                                upsert=True
+                            )
+                            print("Video counter incremented in users_dash")
+                    
+                    return video_url
+            print(f"No videos found for query: {enhanced_prompt}")
+            return None
+        else:
+            print(f"API error: {response.status_code} - {response.text}")
+            return None
+            
+    except Exception as e:
+        print(f"Video generation error: {str(e)}")
+        return None
