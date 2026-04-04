@@ -13,9 +13,10 @@ import {
   faSignOutAlt,
   faBook,
   faNetworkWired,
-  faBuilding
+  faBuilding,
+  faInfoCircle
 } from '@fortawesome/free-solid-svg-icons';
-import { House } from 'lucide-react';
+import { House, Compass, Sparkles } from 'lucide-react';
 
 /**
  * Header Component
@@ -44,6 +45,8 @@ const Header = () => {
   // Navigation menu items with icons
   const menuItems = [
     { name: 'Home', path: '/', icon: <House size={18} /> },
+    { name: 'Explore', path: '/explore', icon: <Compass size={18} /> },
+    { name: 'Guidance', path: '/guidance', icon: <Sparkles size={18} /> },
     { name: 'Story', path: '/ai/story', icon: <FontAwesomeIcon icon={faBook} /> },
     { name: 'Network', path: '/network', icon: <FontAwesomeIcon icon={faNetworkWired} /> },
     { name: 'Gallary', path: '/Gallary', icon: <FontAwesomeIcon icon={faBuilding} /> }
@@ -238,6 +241,14 @@ const Header = () => {
                           <FontAwesomeIcon icon={faUserCircle} className="mr-3" /> Profile
                         </Link>
                         <Link 
+                          to="/about" 
+                          onClick={() => setShowProfileCard(false)} 
+                          className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
+                          role="menuitem"
+                        >
+                          <FontAwesomeIcon icon={faInfoCircle} className="mr-3" /> About Us
+                        </Link>
+                        <Link 
                           to="/settings" 
                           onClick={() => setShowProfileCard(false)} 
                           className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
@@ -340,6 +351,9 @@ const Header = () => {
                 </div>
                 <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200" role="menuitem">
                   <FontAwesomeIcon icon={faUserCircle} className="mr-3" /> Profile
+                </Link>
+                <Link to="/about" onClick={() => setIsMenuOpen(false)} className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200" role="menuitem">
+                  <FontAwesomeIcon icon={faInfoCircle} className="mr-3" /> About Us
                 </Link>
                 <Link to="/settings" onClick={() => setIsMenuOpen(false)} className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200" role="menuitem">
                   <FontAwesomeIcon icon={faCog} className="mr-3" /> Settings
