@@ -1,7 +1,5 @@
 // src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from '../api/firebase.js';
-import { onAuthStateChanged } from 'firebase/auth';
 
 const AuthContext = createContext(null);
 
@@ -14,39 +12,28 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState(null);
 
-  // Listen to Firebase auth state changes
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  // Check localStorage for custom auth data on mount
+  // Load user from localStorage on mount
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     const storedUser = localStorage.getItem('userData');
-    
+
     if (token && storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
         setIsAuthenticated(true);
         setUserData(parsedUser);
-        console.log("AuthContext: User data loaded from localStorage:", parsedUser);
       } catch (e) {
-        console.error("Error parsing user data:", e);
+        console.error('Error parsing user data:', e);
       }
     }
+    setLoading(false);
   }, []);
 
   const login = (token, userInfo) => {
-    console.log("AuthContext login called with:", userInfo);
     localStorage.setItem('authToken', token);
     localStorage.setItem('userData', JSON.stringify(userInfo));
     setIsAuthenticated(true);
@@ -54,23 +41,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    // Clear all user-related localStorage
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
-
-    localStorage.clear()
-    
-    // Clear ALL app-specific data
+    localStorage.clear();
     sessionStorage.clear();
-    
     setIsAuthenticated(false);
     setUserData(null);
-    auth.signOut();
   };
 
-
   const value = {
-    user,
     isAuthenticated,
     userData,
     login,

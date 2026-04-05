@@ -10,8 +10,8 @@ import AboutPage from './pages/about.jsx';
 import GuidanceLayout from './pages/guidance/GuidanceLayout.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import  Profile  from './components/layout/Profile.jsx';
-import NetworkPage from './components/layout/Network/NetworkPage.jsx';
-
+import NetworkPage from './components/layout/Network/NetworkPage';
+import SavedPosts from './components/layout/Network/components/SavedPosts';
 function App() {
   return (
     <ToastProvider>
@@ -26,6 +26,7 @@ function App() {
         <Route path="/guidance" element={<GuidanceLayout />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/network" element={<NetworkPage />} />
+        <Route path="/saved-posts" element={<SavedPosts />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </ToastProvider>
