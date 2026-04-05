@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from firebase_admin import auth
-from app.db.mongodb import user_col,users_dash_col
+from app.db.mongodb import user_col,users_dash_col,explore_cols,users_explore_col
 from app.models.user_models import *
 import requests
 from app.core.config import settings
@@ -57,6 +57,21 @@ async def register_user(user_data: UserRegisterSchema):
                 "total_captions_generated":0,
                 "total_images_generated":0
                 })
+
+            users_explore_col.insert_one({
+                "u_Id":uid,
+                "u_name":user_data.name,
+                "u_explore_name":"",
+                "avatar":None,
+                "total_posts":0,
+                "total_followers":0
+            })
+            explore_cols.insert_one({
+                "u_Id":uid,
+                "u_name":user_data.name,
+                "u_explore_name":"",
+                "posts":[]
+            })
             print(f"User inserted into MongoDB with ID: {result.inserted_id}")
             
             # Get the inserted user document
@@ -195,8 +210,8 @@ async def google_login(data: dict):
                 })
                 users_dash_col.insert_one({
                     "u_Id": uid,
-                    "u_name":user_data.name,
-                    "u_mail":user_data.email,
+                    "u_name":name,
+                    "u_mail":email,
                     "avatar":"",
                     "country": "",
                     "bio": "",
@@ -209,6 +224,20 @@ async def google_login(data: dict):
                     "total_captions_generated":0,
                     "total_images_generated":0
                     })
+                users_explore_col.insert_one({
+                "u_Id":uid,
+                "u_name":name,
+                "u_explore_name":"",
+                "avatar":None,
+                "total_posts":0,
+                "total_followers":0
+                })
+                explore_cols.insert_one({
+                    "u_Id":uid,
+                    "u_name":name,
+                    "u_explore_name":"",
+                    "posts":[]
+                })
                 print(f"✅ User created with ID: {result.inserted_id}")
                 user_doc = user_col.find_one({"_id": result.inserted_id})
                 
