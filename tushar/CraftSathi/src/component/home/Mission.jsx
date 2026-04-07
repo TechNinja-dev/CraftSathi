@@ -33,7 +33,7 @@ const Mission = () => {
             <div className="relative z-10 rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group h-[400px] md:h-[500px]">
               <img 
                 src="https://images.unsplash.com/photo-1584857946252-4752bafbb2df?q=80&w=800&auto=format&fit=crop" 
-                alt="Artisan working" 
+                alt="Artisan wogrking" 
                 className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
