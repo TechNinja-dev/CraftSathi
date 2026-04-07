@@ -44,15 +44,21 @@ const Navbar = () => {
           <div className="flex items-center justify-between px-2">
             
             {/* Logo */}
-            <Link to="/" className="flex-shrink-0 flex items-center ml-2 mr-6 group">
-              <div className="flex items-center">
-                <Feather className="text-purple-400 mr-2 group-hover:text-pink-400 transition-colors" size={24} />
-                <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-white">
-                  CraftSathi
-                </span>
-              </div>
-            </Link>
+<Link to="/" className="flex-shrink-0 flex items-center ml-2 mr-6 group">
+  <div className="flex items-center">
 
+    <img
+      src="/images/logo1.png"
+      alt="CraftSathi Logo"
+      className="w-10 h-10 mr-2 object-contain transition-transform duration-300 group-hover:scale-110"
+    />
+
+    <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-white group-hover:from-pink-300 group-hover:to-white transition-all duration-300">
+      CraftSathi
+    </span>
+
+  </div>
+</Link>
             {/* Desktop Navigation */}
             <div className="hidden md:flex flex-1 justify-end mr-6 items-center space-x-1">
               

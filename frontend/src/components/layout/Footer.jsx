@@ -73,12 +73,18 @@ const Footer = () => {
                   {/* Brand Col */}
                   <div className="lg:pr-4 lg:col-span-1">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-white font-bold">
-                        CS
-                      </div>
-                      <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                        CraftSathi
-                      </span>
+                      <div className="flex items-center gap-3 mb-6">
+  <img
+    src="/images/logo1.png"
+    alt="CraftSathi Logo"
+    className="w-10 h-10 object-contain"
+  />
+
+  <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+    CraftSathi
+  </span>
+</div>
+                      
                     </div>
                     <p className="text-gray-400 mb-6 leading-relaxed">
                       Empowering Indian artisans by connecting their timeless craftsmanship with the global digital economy through AI.

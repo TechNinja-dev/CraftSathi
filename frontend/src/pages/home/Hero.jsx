@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 
 const FloatingCard = ({ delay, yOffset, src, alt, width, height, rotate = 0 }) => (
@@ -20,6 +20,16 @@ const FloatingCard = ({ delay, yOffset, src, alt, width, height, rotate = 0 }) =
 );
 
 const Hero = () => {
+  const videoRef = useRef(null);
+
+  const handleFirstEnd = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = true; // mute after first play
+      videoRef.current.loop = true;  // enable looping
+      videoRef.current.play();
+    }
+  };
+
   return (
     <section id="home" className="relative min-h-screen pt-20 pb-16 md:pt-32 flex items-center justify-center overflow-hidden">
       
@@ -64,7 +74,7 @@ const Hero = () => {
               Preserving Heritage
             </span>
             <span className="text-4xl lg:text-6xl text-gray-300 mt-2 block">
-              Through AI Storytelling
+              Through AI 
             </span>
           </motion.h1>
 
@@ -102,11 +112,16 @@ const Hero = () => {
                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                className="w-full h-full rounded-3xl overflow-hidden border-2 border-white/20 shadow-[0_30px_60px_rgba(0,0,0,0.8)] bg-black"
             >
-              <img 
-                src="https://images.unsplash.com/photo-1610425516790-a7d519b7a421?q=80&w=600&auto=format&fit=crop" 
-                alt="Main Craft" 
-                className="w-full h-full object-cover opacity-90"
-              />
+             <video
+               ref={videoRef}
+               src="/videos/ram.mp4"
+               autoPlay
+               muted={false}
+               loop={false}
+               playsInline
+               onEnded={handleFirstEnd}
+               className="w-full h-full object-cover opacity-90"
+             />
               <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-black/90 to-transparent flex items-end p-5">
                 <div>
                    <span className="bg-purple-600/80 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Pottery</span>
@@ -119,11 +134,11 @@ const Hero = () => {
           </div>
 
           {/* Floating Card 1 - Top Left */}
-          <div className="absolute top-10 left-0">
+          <div className="absolute top-10 -left-4 lg:-left-10 z-30">
              <FloatingCard 
                delay={0.2} 
                yOffset={20} 
-               src="https://images.unsplash.com/photo-1558000143-a6121b6d1656?q=80&w=400&auto=format&fit=crop" 
+               src="/images/img4.png"
                alt="Textiles"
                width={{ width: '160px' }}
                height={{ height: '200px' }}
@@ -132,11 +147,11 @@ const Hero = () => {
           </div>
 
           {/* Floating Card 2 - Bottom Left */}
-          <div className="absolute bottom-10 left-10">
+          <div className="absolute bottom-16 left-0 lg:left-4 z-20">
              <FloatingCard 
                delay={0.4} 
                yOffset={-25} 
-               src="https://images.unsplash.com/photo-1627916968037-f016dcebc504?q=80&w=400&auto=format&fit=crop" 
+               src="/images/img2.png"
                alt="Wood Carving"
                width={{ width: '180px' }}
                height={{ height: '140px' }}
@@ -149,8 +164,8 @@ const Hero = () => {
              <FloatingCard 
                delay={0.6} 
                yOffset={15} 
-               src="https://images.unsplash.com/photo-1605814981881-432243d41e7d?q=80&w=400&auto=format&fit=crop" 
-               alt="Jewelry"
+               src="/images/img2.png"
+               alt="Jewfeelry"
                width={{ width: '150px' }}
                height={{ height: '180px' }}
                rotate={10}
@@ -162,7 +177,7 @@ const Hero = () => {
              <FloatingCard 
                delay={0.8} 
                yOffset={-15} 
-               src="https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=400&auto=format&fit=crop" 
+               src="/images/img4.png"
                alt="Painting"
                width={{ width: '170px' }}
                height={{ height: '220px' }}

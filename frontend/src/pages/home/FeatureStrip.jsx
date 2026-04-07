@@ -27,11 +27,11 @@ const FeatureStrip = () => {
   ];
 
   return (
-    <section className="relative z-20 py-16 -mt-20 md:-mt-32">
+    <section className="relative z-20 py-16 -mt-2 md:-mt-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
           {features.map((feature, index) => (
-            <div key={index} className="pt-[50px] first:pt-0 md:pt-0"> {/* Mobile offset correction */}
+            <div key={index} className="pt-2 md:pt-0"> {/* Adjusted spacing */}
                <FeatureCard 
                  icon={feature.icon}
                  title={feature.title}

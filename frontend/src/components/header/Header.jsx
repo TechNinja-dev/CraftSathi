@@ -160,7 +160,7 @@ const Header = () => {
               <animated.div style={logoSpring} className="flex items-center">
                 <FontAwesomeIcon icon={faFeatherPointed} className="text-purple-400 text-2xl mr-2" />
                 <animated.span style={textSpring} className="text-xl font-bold text-white bg-gradient-to-r from-purple-300 to-white bg-clip-text text-transparent">
-                  CraftSathi
+                  CraftSathii
                 </animated.span>
               </animated.div>
             </Link>
