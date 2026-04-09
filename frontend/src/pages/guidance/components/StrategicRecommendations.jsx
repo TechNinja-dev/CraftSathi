@@ -11,12 +11,8 @@ const iconMap = {
   'Instagram Shop Trends': <Instagram size={18} className="text-white" />,
 };
 
-export default function StrategicRecommendations() {
-  const strategicRecommendations = [
-    { platform: 'Etsy Global Intelligence', confidence: '92% Match', profitScore: 88, trend: [10, 25, 40, 55, 70, 95] },
-    { platform: 'Amazon Karigar Insights', confidence: '85% Match', profitScore: 75, trend: [20, 30, 35, 50, 60, 80] },
-    { platform: 'Instagram Shop Trends', confidence: '95% Match', profitScore: 92, trend: [5, 15, 30, 60, 85, 100] },
-  ];
+export default function StrategicRecommendations({ data }) {
+  const strategicRecommendations = data || [];
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (

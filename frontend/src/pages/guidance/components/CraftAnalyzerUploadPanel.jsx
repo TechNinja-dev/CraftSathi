@@ -5,7 +5,7 @@ import { UploadCloud, CheckCircle2, Loader2, Sparkles } from 'lucide-react';
 
 const analysisSteps = ['Analyzing material', 'Analyzing craftsmanship', 'Analyzing export readiness'];
 
-export default function CraftAnalyzerUploadPanel() {
+export default function CraftAnalyzerUploadPanel({ onAnalysisComplete }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [stepIndex, setStepIndex] = useState(0);
@@ -31,7 +31,7 @@ export default function CraftAnalyzerUploadPanel() {
     setStepIndex(0);
   };
 
-  const onDrop = useCallback((accepted) => {
+  const onDrop = useCallback(async (accepted) => {
     const f = accepted[0];
     if (!f) return;
     setFile(f);
@@ -40,18 +40,55 @@ export default function CraftAnalyzerUploadPanel() {
     setDone(false);
     setStepIndex(0);
     
+    // Simulate analysis steps progressing visually
     let idx = 0;
     const iv = setInterval(() => {
       idx++;
       if (idx < analysisSteps.length) {
         setStepIndex(idx);
-      } else {
-        clearInterval(iv);
+      }
+    }, 1500);
+
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise((resolve) => {
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(f);
+      });
+      const base64Image = await base64Promise;
+
+      const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+      const response = await fetch(`${API_URL}/analyzecraft`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ image_url: base64Image })
+      });
+
+      if (!response.ok) {
+        throw new Error('Analysis failed');
+      }
+
+      const data = await response.json();
+      
+      // Pass the fully structured JSON data up to the GuidanceLayout
+      if (onAnalysisComplete) {
+        onAnalysisComplete(data);
+      }
+
+    } catch (err) {
+      console.error('API Error during craft analysis:', err);
+    } finally {
+      clearInterval(iv);
+      setStepIndex(analysisSteps.length - 1);
+      setTimeout(() => {
         setAnalyzing(false);
         setDone(true);
-      }
-    }, 1200);
-  }, []);
+      }, 500);
+    }
+  }, [onAnalysisComplete]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -172,24 +209,12 @@ export default function CraftAnalyzerUploadPanel() {
                 {done && (
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-6 pt-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <Sparkles className="text-purple-400 w-5 h-5" />
-                      <h3 className="text-xl font-bold text-white tracking-tight">Intelligence Report</h3>
+                       <Sparkles className="text-purple-400 w-5 h-5" />
+                       <h3 className="text-xl font-bold text-white tracking-tight">Intelligence Report</h3>
                     </div>
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                      {[
-                        { label: 'Category Detected', value: 'Blue Pottery' },
-                        { label: 'Best Market', value: 'Etsy USA' },
-                        { label: 'Export Readiness', value: '82%' },
-                        { label: 'Quality Score', value: '⭐ 4.6 / 5' },
-                      ].map((item) => (
-                        <div key={item.label} className="bg-white/5 border border-white/10 rounded-xl p-3 hover:bg-white/10 transition-colors">
-                          <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 mb-1.5">{item.label}</p>
-                          <p className="text-white font-semibold text-sm">{item.value}</p>
-                        </div>
-                      ))}
+                    <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-center">
+                       <p className="text-sm text-gray-400">Analysis completed! Real data will populate the dashboard below shortly.</p>
                     </div>
-                    
                     <div className="pt-2">
                       <button
                         onClick={resetState}

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 
 import GuidanceHero from './components/GuidanceHero';
 import CraftAnalyzerUploadPanel from './components/CraftAnalyzerUploadPanel';
@@ -14,6 +15,8 @@ import LaunchpadProgress from './components/LaunchpadProgress';
 import FloatingAssistantButton from './components/FloatingAssistantButton';
 
 export default function GuidanceLayout() {
+  const [analysisData, setAnalysisData] = useState(null);
+
   return (
     <>
 
@@ -31,12 +34,26 @@ export default function GuidanceLayout() {
 
           {/* Main Scrollable Content */}
           <div className="space-y-10">
-            <CraftAnalyzerUploadPanel />
-            <GlobalPriceIntelligence />
-            <CraftBrandBuilderAssistant />
-            <QualityRadarChart />
-            <ProfitForecastChart />
-            <StrategicRecommendations />
+            <CraftAnalyzerUploadPanel onAnalysisComplete={setAnalysisData} />
+
+            <div className="space-y-10 transition-all duration-500">
+              {analysisData ? (
+                <>
+                  <GlobalPriceIntelligence data={analysisData.pricing} />
+                  <CraftBrandBuilderAssistant data={analysisData.brand} />
+                  <QualityRadarChart data={analysisData.quality} />
+                  <ProfitForecastChart data={analysisData.forecast} />
+                  <StrategicRecommendations data={analysisData.recommendations} />
+                </>
+              ) : (
+                <div className="w-full py-24 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-3xl bg-white/5 backdrop-blur-sm">
+                  <Sparkles size={36} className="text-purple-400 mb-4 opacity-70 animate-pulse" />
+                  <h3 className="text-xl font-medium text-white mb-2">Awaiting Craft Analysis</h3>
+                  <p className="text-sm text-gray-400 max-w-md text-center">Upload a craft image above to generate global market insights, quality assessment, and profit forecasts.</p>
+                </div>
+              )}
+            </div>
+
             <GlobalFAQ />
 
             {/* Success Stories + Launchpad side by side on desktop */}

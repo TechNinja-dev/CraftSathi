@@ -5,21 +5,9 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useInView } from 'react-intersection-observer';
 import { TrendingUp, Instagram, ShoppingBag, Globe } from 'lucide-react';
 
-const scenarios = [
-  { icon: <Instagram size={18} className="text-white" />, label: 'Instagram Shop', range: '₹1.25L – ₹1.80L', risk: 'Low', riskColor: 'green' },
-  { icon: <ShoppingBag size={18} className="text-white" />, label: 'Etsy Global', range: '₹2.50L – ₹3.00L', risk: 'Medium', riskColor: 'yellow' },
-  { icon: <Globe size={18} className="text-white" />, label: 'Local Exhibition', range: '₹30K – ₹60K', risk: 'High', riskColor: 'red' },
-];
-
-export default function ProfitForecastChart() {
-  const profitForecast = [
-    { month: 'Jan', profit: 4000 },
-    { month: 'Feb', profit: 5500 },
-    { month: 'Mar', profit: 4800 },
-    { month: 'Apr', profit: 7200 },
-    { month: 'May', profit: 8500 },
-    { month: 'Jun', profit: 9800 },
-  ];
+export default function ProfitForecastChart({ data }) {
+  const profitForecast = data?.forecast || [];
+  const scenarios = data?.scenarios || [];
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (

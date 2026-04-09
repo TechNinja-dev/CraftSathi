@@ -5,18 +5,10 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Responsi
 import { useInView } from 'react-intersection-observer';
 import { CheckCircle2, AlertTriangle } from 'lucide-react';
 
-const strengths = ['Strong glaze finish', 'Premium texture', 'High Instagram appeal', 'Export compatible material'];
-const improvements = ['Add eco tags', 'Improve packaging label', 'Enhance product lighting photography'];
-
-export default function QualityRadarChart() {
-  const qualityScores = [
-    { metric: 'Material', score: 85 },
-    { metric: 'Durability', score: 90 },
-    { metric: 'Aesthetics', score: 95 },
-    { metric: 'Eco-Friendly', score: 70 },
-    { metric: 'Packaging', score: 60 },
-    { metric: 'Authenticity', score: 100 },
-  ];
+export default function QualityRadarChart({ data }) {
+  const qualityScores = data?.scores || [];
+  const strengths = data?.strengths || [];
+  const improvements = data?.improvements || [];
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (

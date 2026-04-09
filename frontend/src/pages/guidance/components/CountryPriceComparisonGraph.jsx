@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BarChart,
   Bar,
@@ -98,10 +98,13 @@ const GlowBar = (props) => {
 };
 
 /* ── Main Component ─────────────────────────────── */
-export default function CountryPriceComparisonGraph() {
+export default function CountryPriceComparisonGraph({ data }) {
+  const [activeCountry, setActiveCountry] = useState(null);
+  const [activeInsight, setActiveInsight] = useState(0);
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
-  const bestCountry = data.reduce((a, b) => (a.price > b.price ? a : b));
+  const priceData = data || [];
+  const bestCountry = priceData.length > 0 ? priceData.reduce((a, b) => (a.price > b.price ? a : b)) : { price: 0, flag: "", country: "", confidence: 0, color: "#fff" };
   const maxPrice = bestCountry.price;
 
   return (
