@@ -1,12 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import HTTPException
 from bson import ObjectId
-from app.db.mongodb import user_col, images_col,users_dash_col
-from app.models.ai_models import MyStuffResponse
+from app.db.mongodb import user_col, images_col, users_dash_col
 
-router = APIRouter(prefix="/api", tags=["Images"])
-
-
-@router.get("/mystuff", response_model=MyStuffResponse)
 async def get_my_stuff(userId: str):
     try:
         user_doc = user_col.find_one({"u_Id": userId})
@@ -32,7 +27,6 @@ async def get_my_stuff(userId: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.delete("/delete-image")
 async def delete_image(imageId: str, userId: str):
     try:
         user_doc = user_col.find_one({"u_Id": userId})
