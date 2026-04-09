@@ -11,29 +11,11 @@ from app.services.explore_service import (
     unsave_post,
     get_saved_posts
 )
-from pydantic import BaseModel
+from app.models.user_models import AvatarUpdateRequest, ProfileEditRequest, CreatePostRequest, SavePostRequest
 from typing import Optional
 
 router = APIRouter()
 
-class AvatarUpdateRequest(BaseModel):
-    user_id: str
-    avatar: str
-
-class ProfileEditRequest(BaseModel):
-    user_id: str
-    explore_name: str
-    
-class CreatePostRequest(BaseModel):
-    user_id: str
-    user_name: str
-    explore_name: str
-    image_url: str
-    caption: str
-
-class SavePostRequest(BaseModel):
-    user_id: str
-    post_id: str
 
 @router.get("/explore_posts")
 async def explore_posts(

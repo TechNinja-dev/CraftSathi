@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from datetime import datetime
 from app.db.mongodb import user_col, images_col,users_dash_col,caption_col
+from app.models.user_models import ProfileUpdateRequest, PrivateAvatarUpdateRequest, PrivateAvatarRemoveRequest
 
 router = APIRouter()
 
@@ -79,10 +80,10 @@ async def get_profile(userId: str):
 
 
 @router.put("/api/profile/update")
-async def update_profile(data: dict):
+async def update_profile(data: ProfileUpdateRequest):
     try:
-        userId = data.get("userId")
-        profile = data.get("profile")
+        userId = data.userId
+        profile = data.profile.model_dump() if hasattr(data.profile, 'model_dump') else data.profile.dict()
         
         if not userId:
             raise HTTPException(status_code=400, detail="User ID required")
@@ -120,10 +121,10 @@ async def update_profile(data: dict):
     
 
 @router.put("/api/profile/update-avatar")
-async def update_avatar(data: dict):
+async def update_avatar(data: PrivateAvatarUpdateRequest):
     try:
-        userId = data.get("userId")
-        avatar = data.get("avatar")
+        userId = data.userId
+        avatar = data.avatar
         
         if not userId:
             raise HTTPException(status_code=400, detail="User ID required")
@@ -142,9 +143,9 @@ async def update_avatar(data: dict):
 
 
 @router.put("/api/profile/remove-avatar")
-async def remove_avatar(data: dict):
+async def remove_avatar(data: PrivateAvatarRemoveRequest):
     try:
-        userId = data.get("userId")
+        userId = data.userId
         
         if not userId:
             raise HTTPException(status_code=400, detail="User ID required")

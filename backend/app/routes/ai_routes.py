@@ -24,7 +24,7 @@ async def generate_photo(request: PhotoRequest):
     return {"image_url": result}
 
 
-@router.post("/generate-video")
+@router.post("/generate-video", response_model=VideoResponse)
 async def generate_video(request: VideoRequest):
     result = generate_video_service(request.prompt, request.userId)
     if isinstance(result, dict) and "message" in result:
