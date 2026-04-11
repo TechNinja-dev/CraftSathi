@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const FloatingCard = ({ delay, yOffset, src, alt, width, height, rotate = 0 }) => (
   <motion.div
@@ -94,12 +95,12 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
           >
-            <button className="px-8 py-4 bg-white text-black text-base font-bold rounded-full shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)] hover:-translate-y-1 transition-all">
+            <Link to="/network" className="px-8 py-4 bg-white text-black text-base font-bold rounded-full shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)] hover:-translate-y-1 transition-all text-center">
               Start Your Craft Journey
-            </button>
-            <button className="px-8 py-4 bg-white/5 border border-white/10 backdrop-blur-md text-white text-base font-bold rounded-full hover:bg-white/10 hover:border-purple-500/50 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all">
+            </Link>
+            <Link to="/about" className="px-8 py-4 bg-white/5 border border-white/10 backdrop-blur-md text-white text-base font-bold rounded-full hover:bg-white/10 hover:border-purple-500/50 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all text-center">
               Explore Artisan Stories
-            </button>
+            </Link>
           </motion.div>
         </div>
 

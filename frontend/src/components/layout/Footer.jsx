@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Twitter, Instagram, Linkedin, Facebook, CheckCircle2, XCircle } from 'lucide-react';
+import { Instagram, Youtube, CheckCircle2, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
@@ -90,10 +90,8 @@ const Footer = () => {
                       Empowering Indian artisans by connecting their timeless craftsmanship with the global digital economy through AI.
                     </p>
                     <div className="flex items-center gap-4">
-                      <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-purple-600 transition-all"><Twitter size={18} /></a>
                       <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-pink-600 transition-all"><Instagram size={18} /></a>
-                      <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-600 transition-all"><Linkedin size={18} /></a>
-                      <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-800 transition-all"><Facebook size={18} /></a>
+                      <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-600 transition-all"><Youtube size={18} /></a>
                     </div>
                   </div>
 
@@ -101,10 +99,9 @@ const Footer = () => {
                   <div className="lg:col-span-1">
                     <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Marketplace</h4>
                     <ul className="space-y-4">
-                      <li><a href="#" className="text-gray-400 hover:text-pink-400 transition-colors">All Crafts</a></li>
-                      <li><a href="#" className="text-gray-400 hover:text-pink-400 transition-colors">Artisan Directory</a></li>
-                      <li><a href="#" className="text-gray-400 hover:text-pink-400 transition-colors">Authenticity Check</a></li>
-                      <li><a href="#" className="text-gray-400 hover:text-pink-400 transition-colors">Buyer Protection</a></li>
+                      <li><Link to="/mystuff" className="text-gray-400 hover:text-pink-400 transition-colors">All Crafts</Link></li>
+                      <li><Link to="/profile" className="text-gray-400 hover:text-pink-400 transition-colors">Artisan Portfolio</Link></li>
+                      <li><Link to="/guidance" className="text-gray-400 hover:text-pink-400 transition-colors">Authenticity Check</Link></li>
                     </ul>
                   </div>
 
@@ -112,10 +109,10 @@ const Footer = () => {
                   <div className="lg:col-span-1">
                     <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Community</h4>
                     <ul className="space-y-4">
-                      <li><a href="#" className="text-gray-400 hover:text-pink-400 transition-colors">For Artisans</a></li>
-                      <li><a href="#" className="text-gray-400 hover:text-pink-400 transition-colors">AI Studio Tools</a></li>
-                      <li><a href="#" className="text-gray-400 hover:text-pink-400 transition-colors">Pricing Guide</a></li>
-                      <li><a href="#" className="text-gray-400 hover:text-pink-400 transition-colors">Help Center</a></li>
+                      <li><Link to="/network" className="text-gray-400 hover:text-pink-400 transition-colors">For Artisans</Link></li>
+                      <li><Link to="/generate" className="text-gray-400 hover:text-pink-400 transition-colors">AI Studio Tools</Link></li>
+                      <li><Link to="/about" className="text-gray-400 hover:text-pink-400 transition-colors">About Us</Link></li>
+                      <li><a href="mailto:support@craftsathi.com" className="text-gray-400 hover:text-pink-400 transition-colors">Contact Support</a></li>
                     </ul>
                   </div>
 
@@ -169,9 +166,8 @@ const Footer = () => {
                     &copy; {new Date().getFullYear()} CraftSathi Platform. All rights reserved.
                   </p>
                   <div className="flex items-center gap-6 text-sm">
-                    <a href="#" className="text-gray-500 hover:text-white transition-colors">Privacy Policy</a>
-                    <a href="#" className="text-gray-500 hover:text-white transition-colors">Terms of Service</a>
-                    <a href="#" className="text-gray-500 hover:text-white transition-colors">Cookies</a>
+                    <Link to="/privacy" className="text-gray-500 hover:text-white transition-colors">Privacy Policy</Link>
+                    <Link to="/terms" className="text-gray-500 hover:text-white transition-colors">Terms of Service</Link>
                   </div>
                 </div>
               </div>

@@ -4,10 +4,9 @@ import {
   PenTool, Scissors, Brush, Frame, Palette, Globe, FileText, 
   Brain, Fingerprint, Sparkles, Archive, UserPlus, Map, 
   CheckCircle, Rocket, Link2, Users, Cpu, ShieldCheck, 
-  Truck, Monitor, ArrowRight, Guitar, Music, Wand2, Tent, ArrowUpRight
+  Truck, Monitor, ArrowRight, Guitar, Music, Wand2, Tent, ArrowUpRight, Compass
 } from 'lucide-react';
-import { BarChart, Bar, ResponsiveContainer, XAxis, Tooltip, CartesianGrid, Cell } from 'recharts';
-import CountUp from 'react-countup';
+
 import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
 import Navbar from '../components/layout/Navbar.jsx'; 
 import Footer from '../components/layout/Footer.jsx'; 
@@ -27,13 +26,7 @@ const itemVariants = {
 };
 
 /* --- Data Definitions --- */
-const chartData = [
-  { year: '2021', income: 15 },
-  { year: '2022', income: 28 },
-  { year: '2023', income: 45 },
-  { year: '2024', income: 72 },
-  { year: '2025', income: 120 }
-];
+
 
 const INDIA_TOPO_JSON = "https://raw.githubusercontent.com/deldersveld/topojson/master/countries/india/india-states.json";
 
@@ -74,14 +67,14 @@ const AboutPage = () => {
           >
             {/* Floating Glass Tile Icons */}
             {[
-              { Icon: Tent, x: -380, y: -80, delay: 0, color: "text-purple-400 drop-shadow-[0_0_15px_#a855f7]" }, // Top Left (Pot/Vase alternative)
-              { Icon: Wand2, x: 0, y: -140, delay: 2, color: "text-pink-400 drop-shadow-[0_0_15px_#ec4899]" },    // Top Mid
-              { Icon: Frame, x: 380, y: -60, delay: 1.5, color: "text-purple-400 drop-shadow-[0_0_15px_#a855f7]" }, // Top Right (Loom)
-              { Icon: Brush, x: -420, y: 100, delay: 3, color: "text-pink-400 drop-shadow-[0_0_15px_#ec4899]" },   // Mid Left
-              { Icon: Guitar, x: 420, y: 120, delay: 4.5, color: "text-pink-400 drop-shadow-[0_0_15px_#ec4899]" },  // Mid Right
-              { Icon: Palette, x: -250, y: 220, delay: 1, color: "text-purple-400 drop-shadow-[0_0_15px_#a855f7]" },// Bottom Left
-              { Icon: Scissors, x: 0, y: 280, delay: 3.5, color: "text-pink-400 drop-shadow-[0_0_15px_#ec4899]" },  // Bottom Mid
-              { Icon: Music, x: 250, y: 200, delay: 2.5, color: "text-purple-400 drop-shadow-[0_0_15px_#a855f7]" }  // Bottom Right
+              { Icon: Tent, x: -380, y: 0, delay: 0, color: "text-purple-400 drop-shadow-[0_0_15px_#a855f7]" }, // Top Left (Pot/Vase alternative)
+              { Icon: Wand2, x: 0, y: -60, delay: 2, color: "text-pink-400 drop-shadow-[0_0_15px_#ec4899]" },    // Top Mid
+              { Icon: Frame, x: 380, y: 20, delay: 1.5, color: "text-purple-400 drop-shadow-[0_0_15px_#a855f7]" }, // Top Right (Loom)
+              { Icon: Brush, x: -420, y: 180, delay: 3, color: "text-pink-400 drop-shadow-[0_0_15px_#ec4899]" },   // Mid Left
+              { Icon: Guitar, x: 420, y: 200, delay: 4.5, color: "text-pink-400 drop-shadow-[0_0_15px_#ec4899]" },  // Mid Right
+              { Icon: Palette, x: -250, y: 300, delay: 1, color: "text-purple-400 drop-shadow-[0_0_15px_#a855f7]" },// Bottom Left
+              { Icon: Scissors, x: 0, y: 360, delay: 3.5, color: "text-pink-400 drop-shadow-[0_0_15px_#ec4899]" },  // Bottom Mid
+              { Icon: Music, x: 250, y: 280, delay: 2.5, color: "text-purple-400 drop-shadow-[0_0_15px_#a855f7]" }  // Bottom Right
             ].map((node, i) => (
               <motion.div
                 key={i}
@@ -156,8 +149,10 @@ const AboutPage = () => {
             <h2 className="text-3xl font-semibold mb-8 text-center text-white">Our Solution</h2>
             <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               {[
-                { title: "AI Story Engine", desc: "Generates Immersive\nnarratives.", icon: Brain, color: "text-pink-400" },
-                { title: "Identity Builder", desc: "Creates digital craft\npassports.", icon: Fingerprint, color: "text-purple-400" }
+                { title: "Strategic Guidance", desc: "Analyzes craft market worth\nand provides selling strategies.", icon: Compass, color: "text-pink-400" },
+                { title: "Identity Builder", desc: "Creates digital craft\npassports.", icon: Fingerprint, color: "text-purple-400" },
+                { title: "AI Content Studio", desc: "Automated generation of social\nmedia posts and engaging stories.", icon: Wand2, color: "text-pink-400" },
+                { title: "Artisan Social Network", desc: "Connect, share, and grow with\nfellow craftspeople in a dedicated hub.", icon: Users, color: "text-purple-400" }
               ].map((card, i) => (
                 <motion.div 
                   key={i} variants={itemVariants} whileHover={{ scale: 1.03 }}
@@ -166,9 +161,6 @@ const AboutPage = () => {
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/20 to-pink-500/5 blur-3xl -z-10" />
                   
                   <div className="relative z-10">
-                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10">
-                      <card.icon size={14} className={card.color} />
-                    </div>
                     <h3 className="text-xl font-medium text-white mb-2">{card.title}</h3>
                     <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-line">{card.desc}</p>
                   </div>
@@ -189,7 +181,7 @@ const AboutPage = () => {
             initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={sectionVariants}
             className="py-16 w-full max-w-3xl mx-auto"
           >
-            <h2 className="text-3xl font-semibold mb-10 text-center text-white">Core Infrastructure</h2>
+            <h2 className="text-3xl font-semibold mb-10 text-center text-white">Our Core Pillars</h2>
             <div className="flex flex-col gap-4">
               
               {/* Giant Top Card */}
@@ -198,8 +190,8 @@ const AboutPage = () => {
                 className="relative overflow-hidden bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-6 h-[200px] flex flex-col justify-start"
               >
                  <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 blur-[80px]" />
-                 <h3 className="text-lg font-semibold text-white mb-1">Neural Craft Storyteller</h3>
-                 <p className="text-sm text-gray-400 mb-6">Optimizing immersive auto-visualizing any handwoven piece.</p>
+                 <h3 className="text-lg font-semibold text-white mb-1">Smart AI Engine</h3>
+                 <p className="text-sm text-gray-400 mb-6">Our generative AI tools help artisans effortlessly create engaging social media posts, stories, and product tags.</p>
                  
                  {/* Glowing Audio Waveform Mockup */}
                  <div className="absolute bottom-6 left-0 right-0 h-[60px] flex items-center justify-center opacity-70">
@@ -213,8 +205,8 @@ const AboutPage = () => {
               {/* Two stacked bottom cards */}
               <div className="flex flex-col gap-4">
                 {[
-                  { title: "Heritage Repository", desc: "Digitizing 10,000+ weaving patterns to prevent cultural erasure.", icon: Archive },
-                  { title: "Global Marketplace", desc: "Serving 50k countries with carbon neutral trading chains.", icon: Globe }
+                  { title: "Artisan Community Hub", desc: "A dedicated social network giving artisans a space to connect, share their work, and grow together.", icon: Users },
+                  { title: "Strategic Craft Guidance", desc: "Actionable analytics to evaluate a craft's market worth and reveal smart strategies to maximize sales.", icon: Compass }
                 ].map((card, i) => (
                   <motion.div 
                     key={i} variants={itemVariants}
@@ -233,69 +225,7 @@ const AboutPage = () => {
             </div>
           </motion.section>
 
-          {/* =========================================
-              5. MEASURABLE IMPACT
-             ========================================= */}
-          <motion.section 
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={sectionVariants}
-            className="py-16 w-full"
-          >
-            <h2 className="text-3xl font-semibold mb-10 text-center text-white">Measurable Impact</h2>
-            <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-              
-              {/* Radial Progress Metric */}
-              <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-8 flex flex-col items-center justify-center relative overflow-hidden">
-                <div className="absolute bg-purple-500/10 blur-[80px] w-full h-full inset-0 z-0"/>
-                <div className="relative w-40 h-40 mb-4 z-10 flex items-center justify-center">
-                  <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
-                    <motion.circle 
-                      initial={{ strokeDasharray: "0 300" }}
-                      whileInView={{ strokeDasharray: "250 300" }}
-                      transition={{ duration: 2, ease: "easeOut" }}
-                      cx="50" cy="50" r="45" fill="none" stroke="url(#pinkGradient)" strokeWidth="8" strokeLinecap="round" 
-                    />
-                    <defs>
-                      <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#a855f7" />
-                        <stop offset="100%" stopColor="#ec4899" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div className="absolute text-3xl font-bold font-mono text-white">
-                    <CountUp end={89} duration={2.5} enableScrollSpy scrollSpyOnce />%
-                  </div>
-                </div>
-                <h3 className="text-sm font-medium tracking-wide text-gray-300 uppercase z-10">Female Artisan Retention</h3>
-              </motion.div>
 
-              {/* Bar Graph Recharts */}
-              <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-6 flex flex-col pt-10">
-                <h3 className="text-sm font-medium tracking-wide text-gray-300 uppercase z-10 text-center mb-6">Average Income Increase</h3>
-                <div className="h-40 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
-                      <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{fill: '#6b7280', fontSize: 10}} dy={10} />
-                      <Tooltip cursor={{fill: 'rgba(255,255,255,0.02)'}} contentStyle={{background:'#05010b', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'8px', color: 'white'}} itemStyle={{color: 'white'}} />
-                      <Bar dataKey="income" fill="#a855f7" radius={[4, 4, 0, 0]}>
-                        {chartData.map((entry, index) => (
-                           <Cell key={`cell-${index}`} fill={`url(#barGrad)`} />
-                        ))}
-                      </Bar>
-                      <defs>
-                        <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#e879f9" />
-                          <stop offset="100%" stopColor="#8b5cf6" />
-                        </linearGradient>
-                      </defs>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </motion.div>
-
-            </div>
-          </motion.section>
 
           {/* =========================================
               6. ARTISAN JOURNEY TIMELINE
@@ -383,32 +313,6 @@ const AboutPage = () => {
             initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={sectionVariants}
             className="py-16 w-full flex flex-col gap-16 items-center"
           >
-            {/* TECH STACK */}
-            <div className="flex flex-col items-center z-0 w-full max-w-lg mb-8">
-               <h3 className="text-2xl font-semibold text-white mb-8">The Tech Stack</h3>
-               <div className="flex flex-col items-center gap-0 w-full max-w-sm relative pointer-events-auto">
-                 {[
-                   { title: "Community & Ecosystem" },
-                   { title: "AI Core & Language Models" },
-                   { title: "Identity & Blockchain" }
-                 ].map((stack, i) => (
-                   <React.Fragment key={i}>
-                     <motion.div 
-                       whileHover={{ scale: 1.02 }}
-                       className="w-full bg-[#191124] border border-white/10 backdrop-blur-xl rounded-xl p-5 flex items-center justify-center shadow-lg relative z-10 hover:shadow-[0_0_20px_rgba(236,72,153,0.15)] transition-all cursor-pointer"
-                     >
-                       <span className="text-sm font-medium text-gray-300">{stack.title}</span>
-                     </motion.div>
-                     {i < 2 && <div className="h-4 w-[2px] bg-white/10 z-0 my-1" />}
-                   </React.Fragment>
-                 ))}
-                 
-                 {/* Fake 3D Layering Drop Shadow effect */}
-                 <div className="absolute bottom-[-10px] w-[94%] h-[100px] bg-[#191124]/60 border border-white/5 rounded-xl z-[-1]" />
-                 <div className="absolute bottom-[-20px] w-[88%] h-[100px] bg-[#191124]/30 border border-white/5 rounded-xl z-[-2]" />
-               </div>
-            </div>
-
             {/* HUMAN NETWORK */}
             <div className="w-full flex flex-col items-center justify-center relative overflow-visible mt-16">
                 <h3 className="text-xl font-semibold tracking-wide text-white mb-20 text-center">Guided by Human Values</h3>

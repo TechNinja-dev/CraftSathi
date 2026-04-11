@@ -8,7 +8,7 @@ const FeatureCard = ({ icon, title, description }) => {
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: "-50px" }}
       whileHover={{ y: -10, scale: 1.02 }}
-      className="relative p-6 bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-2xl group overflow-hidden"
+      className="relative h-full flex flex-col p-6 bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-2xl group overflow-hidden"
     >
       {/* Glow Effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-pink-500/0 to-violet-500/0 group-hover:from-purple-500/10 group-hover:via-pink-500/10 group-hover:to-violet-500/10 transition-colors duration-500"></div>

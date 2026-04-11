@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
 
 const StatItem = ({ end, suffix, label }) => (
   <div className="flex flex-col items-center sm:items-start p-4 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-pink-500/50 hover:bg-white/10 transition-colors">
     <div className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
-      <CountUp end={end} duration={2.5} suffix={suffix} enableScrollSpy scrollSpyDelay={200} />
+      <CountUp end={end} duration={2.5} suffix={suffix} enableScrollSpy scrollSpyDelay={200} scrollSpyOnce={true} />
     </div>
     <div className="text-xs md:text-sm font-semibold text-gray-400 mt-2 tracking-wide uppercase">
       {label}
@@ -14,6 +14,33 @@ const StatItem = ({ end, suffix, label }) => (
 );
 
 const Mission = () => {
+  const [stats, setStats] = useState({
+    artisans: 50,
+    crafts: 150,
+    countries: 10
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/home/stats');
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            setStats({
+              artisans: result.data.total_users || 50,
+              crafts: result.data.total_craft || 150,
+              countries: Math.max(result.data.total_country || 10, 10)
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch app stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
+
   return (
     <section id="story" className="py-20 md:py-32 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -77,9 +104,9 @@ const Mission = () => {
 
             {/* Counters */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <StatItem end={5000} suffix="+" label="Artisans" />
-              <StatItem end={120} suffix="+" label="Craft Styles" />
-              <StatItem end={35} suffix="+" label="Countries" />
+              <StatItem end={stats.artisans} suffix="+" label="Artisans" />
+              <StatItem end={stats.crafts} suffix="+" label="Craft Styles" />
+              <StatItem end={stats.countries} suffix="+" label="Countries" />
             </div>
             
           </motion.div>
