@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from firebase_admin import auth
 from app.db.mongodb import user_col,users_dash_col,explore_cols,users_explore_col
 from app.models.user_models import UserRegisterSchema, UserLoginSchema
+from app.services.stats_service import increment_users
 import requests
 from app.core.config import settings
 from app.services.email_service import send_otp_email
@@ -75,6 +76,9 @@ async def register_user(user_data: UserRegisterSchema):
             
             # Get the inserted user document
             user_doc = user_col.find_one({"_id": result.inserted_id})
+            
+            # Increment global app stats for new user
+            await increment_users()
             
         except Exception as mongo_error:
             print(f"MongoDB error: {str(mongo_error)}")
@@ -234,6 +238,9 @@ async def google_login(data: dict):
                 })
                 print(f"✅ User created with ID: {result.inserted_id}")
                 user_doc = user_col.find_one({"_id": result.inserted_id})
+                
+                # Increment global app stats for new google user
+                await increment_users()
                 
                 # Clean up OTP from memory
                 if email in otp_store:

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException,Form
 from app.services.ai_service import generate_caption, generate_image, generate_video as generate_video_service
 from app.models.ai_models import *
+from app.services.stats_service import increment_crafts
 
 router = APIRouter(prefix="/api", tags=["AI"])
 
@@ -9,6 +10,8 @@ async def generate_content(userId: str | None=Form(None),file: UploadFile = File
     try:
         image_bytes = await file.read()
         message = generate_caption(image_bytes, file.content_type,userId)
+        # Assuming AI generates 5 captions per call as per user requirements
+        await increment_crafts(count=5)
         return {"message": message}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -21,6 +24,8 @@ async def generate_photo(request: PhotoRequest):
         return result
     if not result:
         raise HTTPException(status_code=500, detail="Image generation failed")
+        
+    await increment_crafts(count=1)
     return {"image_url": result}
 
 
@@ -31,4 +36,6 @@ async def generate_video(request: VideoRequest):
         return result
     if not result:
         raise HTTPException(status_code=500, detail="Video generation failed")
+        
+    await increment_crafts(count=1)
     return {"video_url": result}
