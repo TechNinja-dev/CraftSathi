@@ -11,12 +11,15 @@ initialize_firebase()
 origins = [
     "http://localhost:3000",
     "http://localhost:5173",
-    "https://craftsathi.pages.dev",   # Cloudflare Pages (update after frontend deploy)
+    "https://craftsathi.pages.dev",
+    "https://craftsathi.prakharsrivastava019.workers.dev",
+    "https://6be8a167-craftsathi.prakharsrivastava019.workers.dev",
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"https://.*craftsathi.*\.workers\.dev",  # covers all preview URLs
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
