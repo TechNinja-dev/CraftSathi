@@ -7,4 +7,5 @@ python-multipart
 firebase-admin
 pyjwt
 email-validator
-huggingface_hub
+huggingface_hub
+requests
