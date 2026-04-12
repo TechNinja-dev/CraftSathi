@@ -44,8 +44,11 @@ const OtpSlide = ({ email, onVerify, onResend, onBack, loading, isVisible }) => 
     if (value.length > 1) return;
     if (error) setError('');
     
+    // Always convert to uppercase for alphanumeric OTPs
+    const upperValue = value.toUpperCase();
+    
     const newOtp = [...otp];
-    newOtp[index] = value;
+    newOtp[index] = upperValue;
     setOtp(newOtp);
     
     if (value && index < 5) {
@@ -95,12 +98,14 @@ const OtpSlide = ({ email, onVerify, onResend, onBack, loading, isVisible }) => 
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').slice(0, 6);
-    if (/^\d+$/.test(pastedData)) {
+    const pastedData = e.clipboardData.getData('text').replace(/[^a-zA-Z0-9]/g, '').slice(0, 6).toUpperCase();
+    if (pastedData) {
       const newOtp = pastedData.split('');
       setOtp([...newOtp, ...Array(6 - newOtp.length).fill('')]);
-      const lastIndex = Math.min(newOtp.length, 5);
-      inputRefs.current[lastIndex]?.focus();
+      const lastIndex = Math.min(newOtp.length - 1, 5);
+      if (lastIndex >= 0) {
+        inputRefs.current[lastIndex]?.focus();
+      }
     }
   };
 
@@ -144,7 +149,7 @@ const OtpSlide = ({ email, onVerify, onResend, onBack, loading, isVisible }) => 
             key={index}
             ref={(el) => (inputRefs.current[index] = el)}
             type="text"
-            inputMode="numeric"
+            inputMode="text"
             maxLength={1}
             value={digit}
             onChange={(e) => handleChange(index, e.target.value)}
