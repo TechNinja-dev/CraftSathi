@@ -11,7 +11,7 @@ initialize_firebase()
 origins = [
     "http://localhost:3000",
     "http://localhost:5173",
-    "https://craftsathi.pages.dev",   # Cloudflare Pages (update with your actual domain)
+    "https://craftsathi.pages.dev",   # Cloudflare Pages (update after frontend deploy)
 ]
 
 app.add_middleware(
