@@ -3,24 +3,27 @@ import os
 import requests
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ACTIVE: Resend HTTP API (works on Render free tier)
+# ACTIVE: SendGrid HTTP API (works on Render free tier)
 # Render blocks outbound SMTP (ports 25, 465, 587), so we use HTTP instead.
-# Sign up at resend.com → get API key → add RESEND_API_KEY to Render env vars.
+# Sign up at sendgrid.com → verify sender email → get API key
+# Add SENDGRID_API_KEY to Render env vars.
+# Free tier: 100 emails/day, can send to ANY recipient email.
 # ─────────────────────────────────────────────────────────────────────────────
 
 def send_otp_email(email: str, otp: str) -> bool:
     """
-    Send OTP email using Resend HTTP API (works on Render free tier).
+    Send OTP email using SendGrid HTTP API (works on Render free tier).
     """
     try:
-        api_key = os.getenv("RESEND_API_KEY")
-        # Use RESEND_FROM_EMAIL if set (must be from a verified domain).
-        # Defaults to onboarding@resend.dev which works without domain verification.
-        # Do NOT use EMAIL_USER (gmail.com) — Resend blocks unowned domains.
-        sender_email = os.getenv("RESEND_FROM_EMAIL", "onboarding@resend.dev")
+        api_key = os.getenv("SENDGRID_API_KEY")
+        sender_email = os.getenv("EMAIL_USER")  # craftsathi@gmail.com (verified in SendGrid)
 
         if not api_key:
-            print("RESEND_API_KEY not found in environment variables")
+            print("SENDGRID_API_KEY not found in environment variables")
+            return False
+
+        if not sender_email:
+            print("EMAIL_USER not found in environment variables")
             return False
 
         body = f"""
@@ -39,20 +42,21 @@ def send_otp_email(email: str, otp: str) -> bool:
         """
 
         response = requests.post(
-            "https://api.resend.com/emails",
+            "https://api.sendgrid.com/v3/mail/send",
             headers={
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
             },
             json={
-                "from": f"CraftSathi <{sender_email}>",
-                "to": [email],
+                "personalizations": [{"to": [{"email": email}]}],
+                "from": {"email": sender_email, "name": "CraftSathi"},
                 "subject": "Your Verification Code - CraftSathi",
-                "html": body,
+                "content": [{"type": "text/html", "value": body}],
             },
         )
 
-        if response.status_code in (200, 201):
+        # SendGrid returns 202 Accepted on success
+        if response.status_code == 202:
             print(f"OTP email sent successfully to {email}")
             return True
         else:
