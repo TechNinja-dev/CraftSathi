@@ -3,61 +3,44 @@ import os
 import requests
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ACTIVE: SendGrid HTTP API (works on Render free tier)
-# Render blocks outbound SMTP (ports 25, 465, 587), so we use HTTP instead.
-# Sign up at sendgrid.com → verify sender email → get API key
-# Add SENDGRID_API_KEY to Render env vars.
-# Free tier: 100 emails/day, can send to ANY recipient email.
+# ACTIVE: EmailJS HTTP API (Works flawlessly on Render Free Tier)
+# Sends beautifully FROM craftsathi@gmail.com using Google's OAuth via EmailJS.
 # ─────────────────────────────────────────────────────────────────────────────
 
 def send_otp_email(email: str, otp: str) -> bool:
     """
-    Send OTP email using SendGrid HTTP API (works on Render free tier).
+    Send OTP email using EmailJS REST API.
     """
     try:
-        api_key = os.getenv("SENDGRID_API_KEY")
-        sender_email = os.getenv("EMAIL_USER")  # craftsathi@gmail.com (verified in SendGrid)
+        service_id = os.getenv("EMAILJS_SERVICE_ID")
+        template_id = os.getenv("EMAILJS_TEMPLATE_ID")
+        public_key = os.getenv("EMAILJS_PUBLIC_KEY")
 
-        if not api_key:
-            print("SENDGRID_API_KEY not found in environment variables")
+        if not all([service_id, template_id, public_key]):
+            print("EmailJS credentials missing in environment variables")
             return False
 
-        if not sender_email:
-            print("EMAIL_USER not found in environment variables")
-            return False
+        # EmailJS REST API Payload
+        payload = {
+            "service_id": service_id,
+            "template_id": template_id,
+            "user_id": public_key,
+            "template_params": {
+                "email": email,      # Maps to {{email}} in "To Email" field
+                "passcode": otp      # Maps to {{passcode}} in email Content body
+            }
+        }
 
-        body = f"""
-        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-            <h2 style="color: #4F46E5; text-align: center;">CraftSathi</h2>
-            <h3 style="color: #333; text-align: center;">Your Verification Code</h3>
-            <p style="color: #666; text-align: center;">Use the code below to verify your email:</p>
-            <div style="font-size: 32px; font-weight: bold; color: #4F46E5; padding: 20px; background: #f3f4f6; border-radius: 8px; text-align: center; letter-spacing: 5px;">
-                {otp}
-            </div>
-            <p style="color: #666; text-align: center; margin-top: 20px;">This code will expire in <strong>5 minutes</strong>.</p>
-            <p style="color: #999; font-size: 12px; text-align: center; margin-top: 30px;">If you didn't request this, please ignore this email.</p>
-            <hr style="margin: 20px 0;">
-            <p style="color: #999; font-size: 10px; text-align: center;">CraftSathi - Your Craft, Powered by AI</p>
-        </div>
-        """
-
+        # Send request to EmailJS API natively bypassing SMTP blocks
         response = requests.post(
-            "https://api.sendgrid.com/v3/mail/send",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "personalizations": [{"to": [{"email": email}]}],
-                "from": {"email": sender_email, "name": "CraftSathi"},
-                "subject": "Your Verification Code - CraftSathi",
-                "content": [{"type": "text/html", "value": body}],
-            },
+            "https://api.emailjs.com/api/v1.0/email/send",
+            json=payload,
+            headers={"Content-Type": "application/json"},
         )
 
-        # SendGrid returns 202 Accepted on success
-        if response.status_code == 202:
-            print(f"OTP email sent successfully to {email}")
+        # EmailJS returns 200 OK on success
+        if response.status_code == 200:
+            print(f"OTP email sent successfully to {email} via EmailJS")
             return True
         else:
             print(f"Email error: {response.status_code} - {response.text}")
@@ -66,7 +49,6 @@ def send_otp_email(email: str, otp: str) -> bool:
     except Exception as e:
         print(f"Email error: {e}")
         return False
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LEARNING REFERENCE: Original Gmail SMTP implementation
