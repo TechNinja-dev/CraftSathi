@@ -6,4 +6,5 @@ openai
 python-multipart
 firebase-admin
 pyjwt
-email-validator 
+email-validator
+huggingface_hub
