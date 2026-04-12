@@ -14,7 +14,10 @@ def send_otp_email(email: str, otp: str) -> bool:
     """
     try:
         api_key = os.getenv("RESEND_API_KEY")
-        sender_email = os.getenv("EMAIL_USER", "onboarding@resend.dev")
+        # Use RESEND_FROM_EMAIL if set (must be from a verified domain).
+        # Defaults to onboarding@resend.dev which works without domain verification.
+        # Do NOT use EMAIL_USER (gmail.com) — Resend blocks unowned domains.
+        sender_email = os.getenv("RESEND_FROM_EMAIL", "onboarding@resend.dev")
 
         if not api_key:
             print("RESEND_API_KEY not found in environment variables")
