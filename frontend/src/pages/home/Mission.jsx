@@ -23,7 +23,8 @@ const Mission = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/home/stats');
+        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+        const response = await fetch(`${API_URL}/api/home/stats`);
         if (response.ok) {
           const result = await response.json();
           if (result.success && result.data) {

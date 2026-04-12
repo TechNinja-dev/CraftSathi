@@ -28,9 +28,10 @@ export default function InteractionBar({ post }) {
     setIsSaved(newSavedState); // Optimistic UI update
 
     try {
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
       const url = newSavedState 
-        ? 'http://localhost:8000/posts/save' 
-        : `http://localhost:8000/posts/save?user_id=${userId}&post_id=${post.id}`;
+        ? `${API_URL}/posts/save` 
+        : `${API_URL}/posts/save?user_id=${userId}&post_id=${post.id}`;
         
       const options = {
         method: newSavedState ? 'POST' : 'DELETE',

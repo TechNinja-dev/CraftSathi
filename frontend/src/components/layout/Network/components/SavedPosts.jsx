@@ -18,7 +18,8 @@ const SavedPosts = () => {
       try {
         setLoading(true);
         // Assuming API base URL is available or proxied
-        const res = await fetch(`http://localhost:8000/posts/saved?userId=${userId}`);
+        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+        const res = await fetch(`${API_URL}/posts/saved?userId=${userId}`);
         const data = await res.json();
         
         if (data.status === 'success') {
