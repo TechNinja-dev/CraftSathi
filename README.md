@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/tandpfun/skill-icons/main/icons/React-Dark.svg" alt="CraftSathi Logo" width="80" height="80">
+  <img src="/README_assests/craftsathi_logo.jpeg" alt="CraftSathi Logo" width="80" height="80">
   <h1 align="center">CraftSathi</h1>
   <p align="center">
     <strong>Preserving Heritage Through Intelligence</strong>
@@ -23,7 +23,7 @@
 
 <div align="center">
   <!-- Feel free to replace the src link below with a real screenshot of your Hero section! -->
-  <img src="https://via.placeholder.com/850x450/05010b/a855f7?text=CraftSathi+App+Preview" alt="CraftSathi Dashboard Preview" style="border-radius: 12px; box-shadow: 0 0 20px rgba(168,85,247,0.3);">
+  <img src="/README_assests/homepage.png" alt="CraftSathi Dashboard Preview" style="border-radius: 12px; box-shadow: 0 0 20px rgba(168,85,247,0.3);">
 </div>
 
 ---
@@ -55,43 +55,15 @@
 
 ---
 
-## 🚀 Installation & Setup
+## 🚀 Live Access & Deployment
 
-Follow these steps to establish the environment on your local system:
+Since CraftSathi is a proprietary business platform, raw source code operations and backend APIs are highly secured. 
 
-### Prerequisites
-- [Node.js](https://nodejs.org/en/) (v16+)
-- [Python](https://www.python.org/) (3.9+)
-- Active MongoDB cluster/connection string
-- Firebase Service Account Key JSON
+You can securely access and interact with the live deployed version of the CraftSathi platform below:
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/your-username/CraftSathi.git
-cd CraftSathi
-```
+**🌍 Live Platform URL:** [https://craftsathi.prakharsrivastava019.workers.dev/](https://craftsathi.prakharsrivastava019.workers.dev/)
 
-### 2. Frontend Execution
-```bash
-cd frontend
-# Install node modules
-npm install
-# Spin up development server
-npm start
-```
-*The frontend should now be running on `http://localhost:3000` or `5173`.*
-
-### 3. Backend Execution
-Open a second terminal window:
-```bash
-cd backend
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the FastAPI server in reload mode
-uvicorn main:app --reload
-```
-*The backend API should now be running locally on `http://127.0.0.1:8000`.*
+> **Notice:** Internal team members requiring local environment setup instructions should refer to the private developer portal and request essential `.env` encryption tokens from the administrative team.
 
 ---
 
