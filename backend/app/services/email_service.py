@@ -4,7 +4,6 @@ import requests
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ACTIVE: EmailJS HTTP API (Works flawlessly on Render Free Tier)
-# Sends beautifully FROM craftsathi@gmail.com using Google's OAuth via EmailJS.
 # ─────────────────────────────────────────────────────────────────────────────
 
 def send_otp_email(email: str, otp: str) -> bool:
