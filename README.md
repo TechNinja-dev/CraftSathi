@@ -72,25 +72,25 @@ You can securely access and interact with the live deployed version of the Craft
 We are the leading minds behind CraftSathi, working actively to bridge the gap between historical heritage and digital technology. Feel free to connect with us!
 
 ### 👨‍💻 Prakhar Srivastava  
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/prakhar-srivastava-58bb85303/)
-[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](https://github.com/TechNinja-dev)
-<a href="mailto:prakharsrivastava019@gmail.com">📧 Prakhar Srivastava</a><br/>
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/prakhar-srivastava-58bb85303/) <br>
+[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](https://github.com/TechNinja-dev) <br>
+<a href="mailto:prakharsrivastava019@gmail.com">📧 prakharsrivastava019@gmail.com</a><br/>
 
 
----
+--- 
 
 ### 👨‍💻 Tushar Singh  
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/tushar-singh-link/)
-[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](https://github.com/TUSHAR-SINGH-JI)
-<a href="mailto:tushar458155@gmail.com">📧 Tushar Singh</a><br/>
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/tushar-singh-link/)<br>
+[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](https://github.com/TUSHAR-SINGH-JI)<br>
+<a href="mailto:tushar458155@gmail.com">📧 tushar458155@gmail.com</a><br/>
 
 
 ---
 
 ### 👩‍💻 Muskan Gupta  
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/muskan-gupta-830a432b4/)
-[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](https://github.com/Muskan-2004)
-<a href="mailto:muskangupt05@gmail.com">📧 Muskan Gupta</a>
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/muskan-gupta-830a432b4/) <br>
+[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](https://github.com/Muskan-2004)<br>
+<a href="mailto:muskangupt05@gmail.com">📧 muskangupt05@gmail.com</a>
 
 ---
 <div align="center">
