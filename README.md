@@ -69,25 +69,26 @@ You can securely access and interact with the live deployed version of the Craft
 
 ## 🤝 The Team & Contact
 
-<p align="center">
-  We are the leading minds behind CraftSathi, working actively to bridge the gap between historical heritage and digital technology.<br/>
-  Feel free to connect with us!
-</p>
+We are the leading minds behind CraftSathi, working actively to bridge the gap between historical heritage and digital technology. Feel free to connect with us!
 
-<p align="center">
-  <b>Prakash Srivastava</b><br/>
-  <a href="#">LinkedIn</a> • <a href="#">GitHub</a> • <a href="mailto:prakash@example.com">Email</a>
-</p>
+### 👨‍💻 Prakash Srivastava  
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](#)
+[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](#)
+[![Email](https://img.shields.io/badge/Email-red?style=for-the-badge&logo=gmail)](mailto:prakash@example.com)
 
-<p align="center">
-  <b>Tushar Singh</b><br/>
-  <a href="#">LinkedIn</a> • <a href="#">GitHub</a> • <a href="mailto:tushar@example.com">Email</a>
-</p>
+---
 
-<p align="center">
-  <b>Muskan Gupta</b><br/>
-  <a href="#">LinkedIn</a> • <a href="#">GitHub</a> • <a href="mailto:muskan@example.com">Email</a>
-</p>
+### 👨‍💻 Tushar Singh  
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](#)
+[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](#)
+[![Email](https://img.shields.io/badge/Email-red?style=for-the-badge&logo=gmail)](mailto:tushar@example.com)
+
+---
+
+### 👩‍💻 Muskan Gupta  
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](#)
+[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](#)
+[![Email](https://img.shields.io/badge/Email-red?style=for-the-badge&logo=gmail)](mailto:muskan@example.com)
 
 ---
 <div align="center">
