@@ -72,23 +72,23 @@ You can securely access and interact with the live deployed version of the Craft
 We are the leading minds behind CraftSathi, working actively to bridge the gap between historical heritage and digital technology. Feel free to connect with us!
 
 ### 👨‍💻 Prakash Srivastava  
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](#)
-[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](#)
-[![Email](https://img.shields.io/badge/Email-red?style=for-the-badge&logo=gmail)](mailto:prakash@example.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/prakhar-srivastava-58bb85303/)
+[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](https://github.com/TechNinja-dev)
+[![Email](https://img.shields.io/badge/Email-red?style=for-the-badge&logo=gmail)](mailto:prakharsrivastava019@gmail.com)
 
 ---
 
 ### 👨‍💻 Tushar Singh  
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](#)
-[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](#)
-[![Email](https://img.shields.io/badge/Email-red?style=for-the-badge&logo=gmail)](mailto:tushar@example.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/tushar-singh-link/)
+[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](https://github.com/TUSHAR-SINGH-JI)
+[![Email](https://img.shields.io/badge/Email-red?style=for-the-badge&logo=gmail)](mailto:tushar458155@gmail.com)
 
 ---
 
 ### 👩‍💻 Muskan Gupta  
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](#)
-[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](#)
-[![Email](https://img.shields.io/badge/Email-red?style=for-the-badge&logo=gmail)](mailto:muskan@example.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/muskan-gupta-830a432b4/)
+[![GitHub](https://img.shields.io/badge/GitHub-black?style=for-the-badge&logo=github)](https://github.com/Muskan-2004)
+[![Email](https://img.shields.io/badge/Email-red?style=for-the-badge&logo=gmail)](mailto:muskangupt05@gmail.com)
 
 ---
 <div align="center">
