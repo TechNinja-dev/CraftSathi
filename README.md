@@ -71,11 +71,20 @@ You can securely access and interact with the live deployed version of the Craft
 
 We are the leading minds behind CraftSathi, working actively to bridge the gap between historical heritage and digital technology. Feel free to connect with us!
 
-| Developer | Key Links |
-| :--- | :--- |
-| **Prakash Srivastava** | [LinkedIn](#) • [GitHub](#) • <a href="mailto:prakash@example.com">Email</a> |
-| **Tushar Singh** | [LinkedIn](#) • [GitHub](#) • <a href="mailto:tushar@example.com">Email</a> |
-| **Muskan Gupta** | [LinkedIn](#) • [GitHub](#) • <a href="mailto:muskan@example.com">Email</a> |
+---
+
+### 👨‍💻 Prakash Srivastava
+🔗 [LinkedIn](#) • 💻 [GitHub](#) • 📧 [Email](mailto:prakash@example.com)
+
+---
+
+### 👨‍💻 Tushar Singh
+🔗 [LinkedIn](#) • 💻 [GitHub](#) • 📧 [Email](mailto:tushar@example.com)
+
+---
+
+### 👩‍💻 Muskan Gupta
+🔗 [LinkedIn](#) • 💻 [GitHub](#) • 📧 [Email](mailto:muskan@example.com)
 
 ---
 <div align="center">
