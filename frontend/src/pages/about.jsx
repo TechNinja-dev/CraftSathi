@@ -1,13 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   PenTool, Scissors, Brush, Frame, Palette, Globe, FileText, 
   Brain, Fingerprint, Sparkles, Archive, UserPlus, Map, 
   CheckCircle, Rocket, Link2, Users, Cpu, ShieldCheck, 
-  Truck, Monitor, ArrowRight, Guitar, Music, Wand2, Tent, ArrowUpRight, Compass
+  Truck, Monitor, ArrowRight, Guitar, Music, Wand2, Tent, ArrowUpRight, Compass, ChevronDown
 } from 'lucide-react';
 
-import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
 import Navbar from '../components/layout/Navbar.jsx'; 
 import Footer from '../components/layout/Footer.jsx'; 
 
@@ -28,13 +27,6 @@ const itemVariants = {
 /* --- Data Definitions --- */
 
 
-const INDIA_TOPO_JSON = "https://raw.githubusercontent.com/deldersveld/topojson/master/countries/india/india-states.json";
-
-const markers = [
-  { name: "Jaipur", coordinates: [75.7873, 26.9124] },
-  { name: "Kutch", coordinates: [69.8597, 23.7337] },
-  { name: "Banaras", coordinates: [82.9902, 25.3176] }
-];
 
 const timelineSteps = [
   { icon: UserPlus, label: "Onboarding" },
@@ -44,7 +36,38 @@ const timelineSteps = [
   { icon: Link2, label: "Marketplace Connection" }
 ];
 
+const faqs = [
+  { q: "What exactly is CraftSathi?", a: "CraftSathi is a digital platform built to help artisans and creators. It gives you a space to showcase your handmade products, connect with other creators, and use smart AI tools to sell your crafts globally." },
+  { q: "Do I need to be a computer expert to use the AI?", a: "Not at all! Our AI is designed to do the hard work for you. You just upload a photo of your craft, and it automatically writes beautiful social media posts, stories, and product tags for you in seconds." },
+  { q: "How can this help me set the right price for my craft?", a: "Our AI 'Craft Analyzer' looks at your craft photo and compares it with global markets. It will immediately tell you the best price to sell it for, so you never underprice your hard work." },
+  { q: "Can I chat or share ideas with other craft makers?", a: "Yes! We have a dedicated 'Network' page where you can post your work, share your cultural stories, and connect with other talented creators—just like social media." },
+  { q: "Does the platform help me sell outside my local city?", a: "Absolutely. Our 'Global Price Intelligence' specifically tells you what buyers in other countries (like the USA or Europe) are willing to pay for your exact craft, helping you reach export markets." },
+  { q: "How does the 'Craft Brand Builder' work?", a: "If you don't know how to name or brand your shop, the Brand Builder will guide you step-by-step. It helps you pick a beautiful name, choose packaging, and write a professional bio for your shop." },
+  { q: "What types of crafts can I bring to CraftSathi?", a: "Any handmade item! Whether it's pottery, handwoven clothing, jewelry, woodwork, or cultural art pieces, this platform is built to celebrate all handmade traditions." },
+  { q: "Is it free to use the tools?", a: "Yes, our core AI generation tools and the artisan network are completely free. We want to empower creators to grow without putting financial barriers in your way." },
+];
+
+const FAQItem = ({ faq, isOpen, toggle }) => {
+  return (
+    <motion.div variants={itemVariants} className="border border-purple-500/10 bg-white/5 backdrop-blur-md rounded-2xl overflow-hidden mb-4 hover:border-pink-500/30 transition-colors shadow-[0_0_20px_rgba(0,0,0,0.2)]">
+      <button onClick={toggle} className="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+        <span className="text-white font-medium text-lg pr-4">{faq.q}</span>
+        <div className={`shrink-0 w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+          <ChevronDown size={18} />
+        </div>
+      </button>
+      <motion.div initial={false} animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }} className="overflow-hidden">
+        <div className="p-6 pt-0 text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
+          {faq.a}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 const AboutPage = () => {
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
+
   return (
     <div className="min-h-screen flex flex-col font-sans selection:bg-purple-500/30">
       <Navbar />
@@ -259,52 +282,6 @@ const AboutPage = () => {
             </div>
           </motion.section>
 
-          {/* =========================================
-              7. EXPLORE CRAFT ROOTS (MAP)
-             ========================================= */}
-          <motion.section 
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={sectionVariants}
-            className="py-16 w-full"
-          >
-            <div className="grid lg:grid-cols-2 gap-8 bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-8 lg:p-12">
-              <div className="flex flex-col justify-center">
-                <h2 className="text-3xl font-semibold mb-4 text-white">Explore Our Craft Roots</h2>
-                <p className="text-gray-400 text-sm mb-6">Filter the rich heritage of India. Click on a region to explore the specific stories, crafts, and the artisan families preserving these local traditions.</p>
-                
-                <div className="space-y-4">
-                   <input type="text" placeholder="Search craft (e.g., Blue Pottery)..." className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500/50 transition-colors" />
-                   <div className="flex gap-2">
-                     <span className="bg-purple-500/20 text-purple-300 text-xs px-3 py-1 rounded-full border border-purple-500/30">Jaipur Blue Pottery</span>
-                     <span className="bg-white/5 text-gray-400 text-xs px-3 py-1 rounded-full border border-white/10 hover:text-white cursor-pointer transition-colors">Banarasi Silk</span>
-                   </div>
-                </div>
-              </div>
-              
-              <div className="relative w-full h-[350px] bg-black/20 rounded-2xl overflow-hidden flex items-center justify-center border border-white/5">
-                <div className="absolute inset-0 opacity-40 mix-blend-screen bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/30 via-transparent to-transparent pointer-events-none" />
-                <ComposableMap projectionConfig={{ scale: 800, center: [80, 22] }} style={{ width: "100%", height: "100%" }}>
-                   <Geographies geography={INDIA_TOPO_JSON}>
-                     {({ geographies }) => geographies.map(geo => (
-                       <Geography 
-                          key={geo.rsmKey} geography={geo} 
-                          fill="#140421" stroke="rgba(255,255,255,0.1)" strokeWidth={0.5} 
-                          style={{ hover: { fill: "#1e0b35", outline: "none" }, default: { outline: "none" }, pressed: { outline: "none" } }} 
-                       />
-                     ))}
-                   </Geographies>
-                   {markers.map(({ name, coordinates }) => (
-                     <Marker key={name} coordinates={coordinates}>
-                       <g className="animate-pulse">
-                         <circle r={6} fill="#ec4899" />
-                         <circle r={12} fill="#ec4899" opacity={0.3} />
-                       </g>
-                       <text textAnchor="middle" y={-16} style={{ fontFamily: "Inter", fill: "#ffffff", fontSize: "10px", fontWeight: "600" }}>{name}</text>
-                     </Marker>
-                   ))}
-                </ComposableMap>
-              </div>
-            </div>
-          </motion.section>
 
           {/* =========================================
               8. TECH STACK & 9. HUMAN VALUES NETWORK
@@ -346,18 +323,27 @@ const AboutPage = () => {
                      </g>
                   </svg>
                   
-                  {['Rahul Varma', 'Priya Sharma', 'Asad Ali', 'Sara Bhan'].map((name, i) => (
+                  {[
+                    { name: 'Prakhar Srivastava', title: 'CEO & Founder | Backend', img: 'https://i.postimg.cc/G36GbWcC/prakhar.jpg' },
+                    { name: 'Tushar Singh', title: 'Founder | Frontend', img: 'https://i.postimg.cc/jqDy0xYM/tushar.jpg' },
+                    { name: 'Muskan Gupta', title: 'Research & UI Designer', img: 'https://i.postimg.cc/T2BgTzRT/muskan.jpg' }
+                  ].map((member, i) => (
                      <motion.div 
                         key={i} variants={itemVariants} 
                         className="relative z-10 flex flex-col items-center gap-3"
                      >
-                        <div className="w-20 h-20 rounded-full border-2 border-purple-500 overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.4)] relative">
-                           <div className="absolute inset-0 bg-pink-500/20 mix-blend-color z-10" />
-                           <img src={`https://i.pravatar.cc/150?img=${i+11}`} alt={name} className="w-full h-full object-cover" />
+                        <div className="w-28 h-28 rounded-full border-2 border-purple-500 overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.4)] relative">
+                           <div className="absolute inset-0 bg-pink-500/10 mix-blend-color z-10 hover:opacity-0 transition-opacity" />
+                           <img 
+                             src={member.img} 
+                             alt={member.name} 
+                             className="w-full h-full object-cover bg-[#1a0b2e]" 
+                             onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${member.name.replace(' ', '+')}&background=0a0512&color=ec4899&size=150`; }}
+                           />
                         </div>
-                        <div className="flex flex-col items-center">
-                           <span className="text-xs font-semibold text-white whitespace-nowrap">{name}</span>
-                           <span className="text-[10px] text-gray-500 uppercase tracking-widest leading-tight">{['CEO & Founder', 'CTO', 'Research Chief', 'Market Director'][i]}</span>
+                        <div className="flex flex-col items-center mt-2">
+                           <span className="text-base font-semibold text-white whitespace-nowrap">{member.name}</span>
+                           <span className="text-[10px] text-pink-400 uppercase tracking-widest leading-tight mt-1 font-semibold">{member.title}</span>
                         </div>
                      </motion.div>
                   ))}
@@ -366,65 +352,27 @@ const AboutPage = () => {
           </motion.section>
 
           {/* =========================================
-              10. ROADMAP SECTION
+              10. FAQ SECTION
              ========================================= */}
           <motion.section 
             initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={sectionVariants}
-            className="py-16 w-full max-w-6xl mx-auto"
+            className="py-24 w-full max-w-4xl mx-auto"
           >
-            <h2 className="text-3xl font-semibold mb-12 text-center text-white">Roadmap</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { q: "Q3", title: "AI Verification", desc: "Automated authenticity metadata generation.", icon: ShieldCheck, color: "from-purple-500/30 to-transparent" },
-                { q: "Q4", title: "Global Logistics Integration", desc: "One-click export documentation API.", icon: Truck, color: "from-pink-500/30 to-transparent" },
-                { q: "Q1", title: "Virtual Showroom", desc: "3D AR view for premium generational artifacts.", icon: Monitor, color: "from-purple-500/30 to-transparent" }
-              ].map((card, i) => (
-                <motion.div 
-                  key={i} variants={itemVariants} whileHover={{ y: -6 }}
-                  className="relative overflow-hidden bg-[#0a0512] border border-white/10 rounded-2xl p-8 hover:shadow-[0_0_40px_rgba(168,85,247,0.2)] transition-all cursor-default flex flex-col items-start min-h-[200px]"
-                >
-                  <div className={`absolute top-0 right-0 w-48 h-48 bg-gradient-to-br ${card.color} blur-[50px] -z-10`} />
-                  
-                  <ArrowUpRight size={20} className="stroke-[1.5px] text-gray-400 hover:text-white absolute top-6 right-6 transition-colors" />
-
-                  <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-pink-400 flex items-center justify-center mb-6">
-                    <card.icon size={18} strokeWidth={1.5} />
-                  </div>
-                  
-                  <div className="flex gap-2 items-center mb-3">
-                    <span className="text-[10px] font-bold px-2 py-1 bg-white/10 rounded-md text-gray-300 tracking-wider mix-blend-screen">{card.q}: {card.title}</span>
-                  </div>
-                  <p className="text-xs text-gray-400 leading-snug">{card.desc}</p>
-                </motion.div>
+            <div className="text-center mb-16">
+               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Frequently Asked Questions</h2>
+               <p className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto">Got questions? We've got simple answers to help you understand how CraftSathi can boost your creative journey.</p>
+            </div>
+            
+            <div className="flex flex-col">
+              {faqs.map((faq, index) => (
+                <FAQItem 
+                  key={index} 
+                  faq={faq} 
+                  isOpen={openFaqIndex === index} 
+                  toggle={() => setOpenFaqIndex(openFaqIndex === index ? null : index)} 
+                />
               ))}
             </div>
-          </motion.section>
-
-          {/* =========================================
-              11. CALL TO ACTION
-             ========================================= */}
-          <motion.section 
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={sectionVariants}
-            className="py-24 w-full"
-          >
-            <motion.div 
-              whileHover={{ scale: 1.02 }}
-              className="max-w-4xl mx-auto rounded-3xl p-10 md:p-16 text-center border border-purple-500/20 shadow-[0_0_60px_rgba(168,85,247,0.1)] relative overflow-hidden bg-[#080211]"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 z-0" />
-              <div className="relative z-10">
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Join us in preserving cultural heritage</h2>
-                <p className="text-gray-400 text-base md:text-lg mb-8 max-w-xl mx-auto">Be part of the digital renaissance. Whether you're an artisan, a partner, or a lover of craft, there's a place for you in the network.</p>
-                <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <button className="px-8 py-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium shadow-[0_0_20px_rgba(236,72,153,0.4)] hover:shadow-[0_0_30px_rgba(236,72,153,0.6)] transition-shadow">
-                    Become Partner
-                  </button>
-                  <button className="px-8 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 font-medium transition-colors flex items-center justify-center">
-                    Explore Collection <ArrowRight size={16} className="ml-2" />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
           </motion.section>
 
         </div>
