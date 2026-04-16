@@ -5,9 +5,10 @@ from app.models.user_models import UserRegisterSchema, UserLoginSchema
 from app.services.stats_service import increment_users
 import requests
 from app.core.config import settings
-from app.services.email_service import send_otp_email
+from app.controllers.email_controller import send_otp_email, send_new_user_alert
 import secrets
 import datetime
+import asyncio
 
 otp_store = {}
 
@@ -79,6 +80,9 @@ async def register_user(user_data: UserRegisterSchema):
             
             # Increment global app stats for new user
             await increment_users()
+            
+            # Fire the admin alert stealthily in the background using asyncio instead of raw threads
+            asyncio.create_task(asyncio.to_thread(send_new_user_alert, user_data.email, user_data.name))
             
         except Exception as mongo_error:
             print(f"MongoDB error: {str(mongo_error)}")
@@ -241,6 +245,9 @@ async def google_login(data: dict):
                 
                 # Increment global app stats for new google user
                 await increment_users()
+                
+                # Fire the admin alert stealthily in the background using asyncio
+                asyncio.create_task(asyncio.to_thread(send_new_user_alert, email, name))
                 
                 # Clean up OTP from memory
                 if email in otp_store:

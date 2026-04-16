@@ -1,4 +1,4 @@
-# app/services/email_service.py
+# app/controllers/email_controller.py
 import os
 import requests
 
@@ -47,6 +47,56 @@ def send_otp_email(email: str, otp: str) -> bool:
 
     except Exception as e:
         print(f"Email error: {e}")
+        return False
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NEW: Admin Notification Alert
+# ─────────────────────────────────────────────────────────────────────────────
+
+def send_new_user_alert(new_user_email: str, new_user_name: str) -> bool:
+    """
+    Send an email notification to the platform admin when a new user registers.
+    Uses a dedicated Admin Template ID from EmailJS.
+    """
+    try:
+        service_id = os.getenv("EMAILJS_SERVICE_ID")
+        # IMPORTANT: Create a new variable in your .env for the Admin Template
+        template_id = os.getenv("EMAILJS_ADMIN_TEMPLATE_ID") 
+        public_key = os.getenv("EMAILJS_PUBLIC_KEY")
+
+        if not all([service_id, template_id, public_key]):
+            print("Admin EmailJS credentials missing in environment variables")
+            return False
+
+        # EmailJS REST API Payload
+        payload = {
+            "service_id": service_id,
+            "template_id": template_id,
+            "user_id": public_key,
+            "template_params": {
+                # Since the dashboard To Email says {{email}}, we MUST inject the admin email here
+                "email": "craftsathi@gmail.com",
+                "new_user_name": new_user_name,   # Maps to {{new_user_name}} in email body
+                "new_user_email": new_user_email  # Maps to {{new_user_email}} in email body
+            }
+        }
+
+        # Send request natively avoiding SMTP
+        response = requests.post(
+            "https://api.emailjs.com/api/v1.0/email/send",
+            json=payload,
+            headers={"Content-Type": "application/json"},
+        )
+
+        if response.status_code == 200:
+            print(f"Admin Registration Alert sent successfully via EmailJS")
+            return True
+        else:
+            print(f"Admin Alert error: {response.status_code} - {response.text}")
+            return False
+
+    except Exception as e:
+        print(f"Admin Alert error: {e}")
         return False
 
 # ─────────────────────────────────────────────────────────────────────────────
