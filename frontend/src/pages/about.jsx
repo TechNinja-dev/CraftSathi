@@ -30,7 +30,7 @@ const itemVariants = {
 
 const timelineSteps = [
   { icon: UserPlus, label: "Onboarding" },
-  { icon: Map, label: "Story Mapping" },
+  { icon: Brain, label: "AI Craft Analysis" },
   { icon: CheckCircle, label: "Quality Check" },
   { icon: Rocket, label: "Global Launch" },
   { icon: Link2, label: "Marketplace Connection" }
@@ -258,18 +258,52 @@ const AboutPage = () => {
             className="py-16 w-full max-w-5xl mx-auto"
           >
             <h2 className="text-3xl font-semibold mb-12 text-center text-white">The Artisan Journey</h2>
-            <div className="relative flex justify-between items-center w-full px-4 overflow-x-auto pb-6 custom-scrollbar">
+            <div className="relative flex flex-col md:flex-row justify-center md:justify-between items-center w-full px-4 pb-6 gap-10 md:gap-0">
               
-              {/* Connecting Line */}
-              <div className="absolute left-[5%] right-[5%] top-6 h-0.5 bg-white/10 z-0">
+              <div className="absolute left-1/2 -translate-x-1/2 top-6 bottom-6 w-0.5 md:left-[5%] md:translate-x-0 md:right-[5%] md:top-6 md:h-0.5 md:w-auto md:bottom-auto bg-white/10 z-0 hidden md:block">
                 <motion.div 
-                  initial={{ width: 0 }} whileInView={{ width: "100%" }} transition={{ duration: 1.5, ease: "easeInOut" }}
-                  className="h-full bg-gradient-to-r from-purple-500 to-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.5)]"
+                   initial={{ scaleX: 0 }} 
+                   whileInView={{ scaleX: 1 }} 
+                   transition={{ duration: 1.5, ease: "easeInOut" }}
+                   className="w-full h-full origin-left bg-gradient-to-r from-purple-500 to-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.5)]"
                 />
               </div>
 
               {timelineSteps.map((step, i) => (
                 <motion.div key={i} variants={itemVariants} className="flex flex-col items-center relative z-10 shrink-0 min-w-[120px]">
+                  
+                  {/* Alternating SVG Semicircle Wave for Mobile */}
+                  {i < timelineSteps.length - 1 && (
+                     <div 
+                       className="absolute md:hidden pointer-events-none -z-10"
+                       style={{ 
+                         top: '24px', 
+                         height: 'calc(100% + 40px)', 
+                         width: '70px',
+                         left: i % 2 === 0 ? 'calc(50% - 70px)' : '50%' 
+                       }}
+                     >
+                       <svg className="w-full h-full drop-shadow-[0_0_8px_rgba(236,72,153,0.6)] overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
+                           <defs>
+                              <linearGradient id={`arcGrad-${i}`} x1="0" y1="0" x2="0" y2="1">
+                                 <stop offset="0%" stopColor={i % 2 === 0 ? "#a855f7" : "#ec4899"} />
+                                 <stop offset="100%" stopColor={i % 2 === 0 ? "#ec4899" : "#a855f7"} />
+                              </linearGradient>
+                           </defs>
+                           <motion.path 
+                             initial={{ pathLength: 0 }} 
+                             whileInView={{ pathLength: 1 }} 
+                             transition={{ duration: 0.8, ease: "easeInOut" }}
+                             d={i % 2 === 0 ? "M 100 0 C -30 0, -30 100, 100 100" : "M 0 0 C 130 0, 130 100, 0 100"}
+                             fill="none" 
+                             stroke={`url(#arcGrad-${i})`} 
+                             strokeWidth="3" 
+                             vectorEffect="non-scaling-stroke"
+                           />
+                        </svg>
+                     </div>
+                  )}
+
                   <motion.div 
                     whileHover={{ scale: 1.15 }}
                     className="w-12 h-12 rounded-full bg-[#080211] border-2 border-pink-500/50 flex items-center justify-center text-pink-400 mb-3 shadow-[0_0_20px_rgba(236,72,153,0.2)] bg-gradient-to-br hover:from-purple-900/40 hover:to-pink-900/40 transition-colors"
@@ -294,9 +328,9 @@ const AboutPage = () => {
             <div className="w-full flex flex-col items-center justify-center relative overflow-visible mt-16">
                 <h3 className="text-xl font-semibold tracking-wide text-white mb-20 text-center">Guided by Human Values</h3>
                 
-                <div className="relative w-full max-w-4xl h-[150px] flex items-center justify-between px-10">
+                <div className="relative w-full max-w-4xl md:h-[150px] flex flex-col md:flex-row items-center justify-center md:justify-between px-4 md:px-10 gap-12 md:gap-0 mt-8 md:mt-0">
                   {/* Highly intricate SVG Constellation Web */}
-                  <svg className="absolute inset-0 w-full h-[300px] -top-20 z-0 pointer-events-none" viewBox="0 0 1000 300">
+                  <svg className="hidden md:block absolute inset-0 w-full h-[300px] -top-20 z-0 pointer-events-none" viewBox="0 0 1000 300">
                      {/* Web Lines */}
                      <g stroke="rgba(236,72,153,0.2)" strokeWidth="1.5">
                        <line x1="120" y1="150" x2="300" y2="40" stroke="rgba(168,85,247,0.3)" />
