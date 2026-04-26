@@ -3,10 +3,20 @@ from app.db.mongodb import caption_col, user_col
 from app.models.user_models import SaveCaptionRequest
 from datetime import datetime
 
+def encode_key(url: str) -> str:
+    """Sanitizes periods to prevent MongoDB dot-notation nested object crashes."""
+    return url.replace(".", "_dot_")
+
+def decode_key(key: str) -> str:
+    """Restores periods so the React frontend can load the valid image URL."""
+    return key.replace("_dot_", ".")
+
 async def save_caption(request: SaveCaptionRequest):
     user_doc = user_col.find_one({"u_Id": request.userId})
     if not user_doc:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    encoded_url = encode_key(request.image_url)
     
     # Update or create user's caption document
     result = caption_col.update_one(
@@ -16,7 +26,7 @@ async def save_caption(request: SaveCaptionRequest):
                 "u_name": user_doc.get("u_name"),
                 "updated_at": datetime.utcnow()
             },
-            "$push": {f"saved_captions.{request.image_url}": request.caption}
+            "$push": {f"saved_captions.{encoded_url}": request.caption}
         },
         upsert=True
     )
@@ -35,9 +45,11 @@ async def get_captions(userId: str):
     # Convert to list format for frontend
     caption_groups = []
     total = 0
-    for image_url, captions_list in saved_captions.items():
+    for safe_key, captions_list in saved_captions.items():
+        original_url = decode_key(safe_key)
+        
         caption_groups.append({
-            "image_url": image_url,
+            "image_url": original_url,
             "captions": captions_list,
             "caption_count": len(captions_list)
         })
@@ -63,10 +75,12 @@ async def delete_caption(userId: str, image_url: str, captionIndex: int):
         # Get the captions list for this image URL
         saved_captions = doc.get("saved_captions", {})
         
-        if image_url not in saved_captions:
+        encoded_url = encode_key(image_url)
+        
+        if encoded_url not in saved_captions:
             raise HTTPException(status_code=404, detail="Image URL not found")
         
-        captions_list = saved_captions[image_url]
+        captions_list = saved_captions[encoded_url]
         
         if captionIndex < 0 or captionIndex >= len(captions_list):
             raise HTTPException(status_code=400, detail="Invalid caption index")
@@ -75,17 +89,17 @@ async def delete_caption(userId: str, image_url: str, captionIndex: int):
         removed_caption = captions_list.pop(captionIndex)
         
         if len(captions_list) == 0:
-            # Remove the image_url key if no captions left
+            # Remove the encoded_url key if no captions left
             caption_col.update_one(
                 {"u_Id": userId},
-                {"$unset": {f"saved_captions.{image_url}": ""}}
+                {"$unset": {f"saved_captions.{encoded_url}": ""}}
             )
             message = "Caption removed and empty group deleted"
         else:
             # Update the captions list
             caption_col.update_one(
                 {"u_Id": userId},
-                {"$set": {f"saved_captions.{image_url}": captions_list}}
+                {"$set": {f"saved_captions.{encoded_url}": captions_list}}
             )
             message = "Caption deleted successfully"
         
@@ -113,15 +127,17 @@ async def delete_caption_group(userId: str, image_url: str):
         
         saved_captions = doc.get("saved_captions", {})
         
-        if image_url not in saved_captions:
+        encoded_url = encode_key(image_url)
+        
+        if encoded_url not in saved_captions:
             raise HTTPException(status_code=404, detail="Image URL not found")
         
-        caption_count = len(saved_captions[image_url])
+        caption_count = len(saved_captions[encoded_url])
         
-        # Remove the image_url key
+        # Remove the encoded_url key
         result = caption_col.update_one(
             {"u_Id": userId},
-            {"$unset": {f"saved_captions.{image_url}": ""}}
+            {"$unset": {f"saved_captions.{encoded_url}": ""}}
         )
         
         if result.modified_count == 0:
