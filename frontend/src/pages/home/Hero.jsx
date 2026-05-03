@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
@@ -22,12 +22,25 @@ const FloatingCard = ({ delay, yOffset, src, alt, width, height, rotate = 0 }) =
 
 const Hero = () => {
   const videoRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Check if device is mobile initially and on window resize
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile(); // Run on mount
+    
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleFirstEnd = () => {
+    // The user requested the video to play only once on desktop.
+    // By removing the loop=true logic, it will naturally play once and stop on the final frame.
     if (videoRef.current) {
-      videoRef.current.muted = true; // mute after first play
-      videoRef.current.loop = true;  // enable looping
-      videoRef.current.play();
+      videoRef.current.pause();
     }
   };
 
@@ -113,16 +126,19 @@ const Hero = () => {
                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                className="w-full h-full rounded-3xl overflow-hidden border-2 border-white/20 shadow-[0_30px_60px_rgba(0,0,0,0.8)] bg-black"
             >
-             <video
-               ref={videoRef}
-               src="/videos/ram.mp4"
-               autoPlay
-               muted={false}
-               loop={false}
-               playsInline
-               onEnded={handleFirstEnd}
-               className="w-full h-full object-cover opacity-90"
-             />
+             {/* Only render the video element if we are NOT on a mobile device. This physically prevents the audio from playing in the background on phones. */}
+             {!isMobile && (
+               <video
+                 ref={videoRef}
+                 src="/videos/ram.mp4"
+                 autoPlay
+                 muted={false}
+                 loop={false}
+                 playsInline
+                 onEnded={handleFirstEnd}
+                 className="w-full h-full object-cover opacity-90"
+               />
+             )}
               <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-black/90 to-transparent flex items-end p-5">
                 <div>
                    <span className="bg-purple-600/80 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Pottery</span>
