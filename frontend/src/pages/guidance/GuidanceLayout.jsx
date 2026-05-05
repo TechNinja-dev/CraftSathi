@@ -11,8 +11,8 @@ import ProfitForecastChart from './components/ProfitForecastChart';
 import StrategicRecommendations from './components/StrategicRecommendations';
 import GlobalFAQ from './components/GlobalFAQ';
 import SuccessStories from './components/SuccessStories';
-import LaunchpadProgress from './components/LaunchpadProgress';
-import FloatingAssistantButton from './components/FloatingAssistantButton';
+import Footer from '../../components/layout/Footer';
+
 
 export default function GuidanceLayout() {
   const [analysisData, setAnalysisData] = useState(null);
@@ -57,15 +57,14 @@ export default function GuidanceLayout() {
             <GlobalFAQ />
 
             {/* Success Stories + Launchpad side by side on desktop */}
-            <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-8">
+            <div className="w-full">
               <SuccessStories />
-              <LaunchpadProgress />
+
             </div>
           </div>
         </div>
-
-        <FloatingAssistantButton />
       </div>
+      <Footer />
     </>
   );
 }

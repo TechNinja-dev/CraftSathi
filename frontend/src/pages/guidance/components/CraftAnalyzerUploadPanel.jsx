@@ -231,16 +231,7 @@ export default function CraftAnalyzerUploadPanel({ onAnalysisComplete }) {
         </AnimatePresence>
       </div>
 
-      {/* Floating AI Button Addition */}
-      <motion.button
-        animate={{ scale: [1, 1.08, 1] }}
-        transition={{ repeat: Infinity, duration: 2 }}
-        className="fixed bottom-8 right-8 rounded-full px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg flex items-center gap-2 z-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#110e1b] cursor-pointer"
-        aria-label="AI Assistant"
-      >
-        <Sparkles size={18} />
-        <span className="font-medium text-sm">Assistant</span>
-      </motion.button>
+
     </section>
   );
 }
