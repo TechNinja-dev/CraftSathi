@@ -29,3 +29,6 @@ dummy.json
 insert_dummy.py
 
 tushar/CraftSathi/node_modules/
+dist/
+build/
+*.spec
