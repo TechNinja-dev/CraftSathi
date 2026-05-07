@@ -12,6 +12,7 @@
     <img src="https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
     <img src="https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
     <img src="https://img.shields.io/badge/Auth-Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase" />
+    <a href="https://github.com/TechNinja-dev/CraftSathi/releases/latest"><img src="https://img.shields.io/badge/Download-Windows-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Download Windows" /></a>
   </p>
 </div>
 
@@ -65,7 +66,13 @@ You can securely access and interact with the live deployed version of the Craft
 
 > **Notice:** Internal team members requiring local environment setup instructions should refer to the private developer portal and request essential `.env` encryption tokens from the administrative team.
 
+### 🖥️ Desktop Application
+For a standalone experience without using a web browser, you can download the official CraftSathi Windows executable:
+
+**📦 Download for Windows:** [Latest Release (v1.0.0)](https://github.com/TechNinja-dev/CraftSathi/releases/latest)
+
 ---
+
 
 ## 🤝 The Team & Contact
 
