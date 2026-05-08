@@ -1,19 +1,16 @@
 import re
-from openai import OpenAI
+import requests
 from dotenv import load_dotenv
 import os
 import base64
 from app.db.mongodb import user_col,images_col,users_dash_col,videos_col
 import datetime
 import requests
-from huggingface_hub import InferenceClient
 import random
 load_dotenv()
 
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-)
+# Unified Pollinations API for Text and Vision
+POLLEN_TEXT_URL = "https://gen.pollinations.ai/v1/chat/completions"
 
 def generate_caption(image_bytes, content_type, userId=None ):
     """
@@ -22,14 +19,14 @@ def generate_caption(image_bytes, content_type, userId=None ):
     base64_image = base64.b64encode(image_bytes).decode("utf-8")
     
     try:
-        completion = client.chat.completions.create(
-            extra_headers={
-                "HTTP-Referer": "http://localhost:3000",
-                "X-OpenRouter-Title": "Social Media Caption Generator",
-            },
-            extra_body={},
-            model="google/gemma-3-4b-it:free",
-            messages=[
+        headers = {
+            "Authorization": f"Bearer {os.getenv('pollen_caption')}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "mistral-large",
+            "messages": [
                 {
                     "role": "user",
                     "content": [
@@ -60,20 +57,14 @@ Generate captions based on what you see in the image."""
                     ]
                 }
             ]
-        )
+        }
         
-        raw_response = completion.choices[0].message.content
+        response = requests.post(POLLEN_TEXT_URL, headers=headers, json=payload, timeout=30)
+        response.raise_for_status()
+        
+        data = response.json()
+        raw_response = data["choices"][0]["message"]["content"]
         captions = process_description(raw_response)
-        
-        # Increment total_captions_generated counter in users_dash
-        print(userId)
-        if userId:
-            users_dash_col.update_one(
-                {"u_Id": userId},
-                {"$inc": {"total_captions_generated": 5}},  # Increment by 5 captions
-                upsert=True
-            )
-            print("Saved captions to DB")
         
         return captions
         
@@ -102,7 +93,7 @@ def process_description(raw_text):
             caption = re.sub(r'^[0-9]\.\s*', '', caption)
             caption = re.sub(r'^[🎨📖🛍️✨💫1️⃣2️⃣3️⃣4️⃣5️⃣]\s*', '', caption)
             caption = caption.strip()
-            caption=caption[14:]
+            caption=caption[19:]
             if caption and len(caption) > 5:
                 captions.append(caption)
     
@@ -238,19 +229,28 @@ def enhance_prompt_with_ai(user_prompt):
 
             Enhanced prompt:"""
         
-        response = client.chat.completions.create(
-            model="google/gemma-3-4b-it:free",
-            messages=[
+        headers = {
+            "Authorization": f"Bearer {os.getenv('pollen_caption')}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "openai",
+            "messages": [
                 {
                     "role": "user",
                     "content": enhancement_prompt
                 }
             ],
-            max_tokens=50,
-            temperature=0.7
-        )
+            "max_tokens": 50,
+            "temperature": 0.7
+        }
         
-        enhanced_query = response.choices[0].message.content.strip()
+        response = requests.post(POLLEN_TEXT_URL, headers=headers, json=payload, timeout=30)
+        response.raise_for_status()
+        
+        data = response.json()
+        enhanced_query = data["choices"][0]["message"]["content"].strip()
         
         # Clean up the response (remove quotes, extra spaces, newlines)
         enhanced_query = enhanced_query.strip('"').strip("'").strip()
@@ -283,19 +283,28 @@ def enhance_video_prompt(user_prompt):
 
             Search query:"""
         
-        response = client.chat.completions.create(
-            model="google/gemma-3-4b-it:free",
-            messages=[
+        headers = {
+            "Authorization": f"Bearer {os.getenv('pollen_caption')}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "openai",
+            "messages": [
                 {
                     "role": "user",
                     "content": enhancement_prompt
                 }
             ],
-            max_tokens=20,
-            temperature=0.7
-        )
+            "max_tokens": 20,
+            "temperature": 0.7
+        }
         
-        enhanced_query = response.choices[0].message.content.strip()
+        response = requests.post(POLLEN_TEXT_URL, headers=headers, json=payload, timeout=30)
+        response.raise_for_status()
+        
+        data = response.json()
+        enhanced_query = data["choices"][0]["message"]["content"].strip()
         enhanced_query = enhanced_query.strip('"').strip("'").strip()
         
         if not enhanced_query or len(enhanced_query) < 2:
