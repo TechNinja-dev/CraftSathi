@@ -110,10 +110,22 @@ const Generate = () => {
     setSavingIndex(index);
     try {
       const userId = userData.u_Id || userData.uid;
+      
+      let base64Data = null;
+      if (selectedFile) {
+        base64Data = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(selectedFile);
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = error => reject(error);
+        });
+      }
+
       const payload = {
         userId: userId,
         caption: caption,
-        image_url: previewUrl
+        image_url: previewUrl,
+        image_data: base64Data
       };
 
       const response = await fetch(`${API_URL}/api/save-caption`, {

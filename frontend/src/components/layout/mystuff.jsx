@@ -148,7 +148,7 @@ const MyStuff = () => {
       } else if (deleteType === 'caption') {
         // Delete individual caption
         const response = await fetch(
-          `${API_URL}/api/delete-caption?userId=${userId}&image_url=${encodeURIComponent(itemToDelete.item.image_url)}&captionIndex=${itemToDelete.captionIndex}`,
+          `${API_URL}/api/delete-caption?userId=${userId}&image_id=${encodeURIComponent(itemToDelete.item.id)}&captionIndex=${itemToDelete.captionIndex}`,
           { method: 'DELETE' }
         );
         
@@ -163,7 +163,7 @@ const MyStuff = () => {
       } else if (deleteType === 'captionGroup') {
         // Delete entire caption group
         const response = await fetch(
-          `${API_URL}/api/delete-caption-group?userId=${userId}&image_url=${encodeURIComponent(itemToDelete.item.image_url)}`,
+          `${API_URL}/api/delete-caption-group?userId=${userId}&image_id=${encodeURIComponent(itemToDelete.item.id)}`,
           { method: 'DELETE' }
         );
         
