@@ -141,9 +141,10 @@ def generate_image(prompt, userId=None):
         )
         
         if response.status_code == 200:
-            image_url = f"https://gen.pollinations.ai/image/{encoded_query}?model={model}&width=1024&height=1024&seed=0&enhance=false&key={pollen_key}"
+            # Convert downloaded image to Base64 Data URI and store in image_url variable
+            image_url = f"data:image/jpeg;base64,{base64.b64encode(response.content).decode('utf-8')}"
             
-            print(f"✅ Image generated successfully: {image_url}")
+            print("✅ Image generated successfully and converted to Base64")
             
             if image_url:
                 # Save to database if userId provided
