@@ -21,6 +21,7 @@ class SaveCaptionRequest(BaseModel):
     userId: str
     caption: str
     image_url: Optional[str] = None
+    image_data: Optional[str] = None
 
 class GetCaptionsRequest(BaseModel):
     userId: str

@@ -15,14 +15,14 @@ async def get_captions(userId: str):
 @router.delete("/api/delete-caption")
 async def delete_caption(
     userId: str = Query(...),
-    image_url: str = Query(...),
+    image_id: str = Query(...),
     captionIndex: int = Query(...)
 ):
-    return await captions_ctrl.delete_caption(userId, image_url, captionIndex)
+    return await captions_ctrl.delete_caption(userId, image_id, captionIndex)
 
 @router.delete("/api/delete-caption-group")
 async def delete_caption_group(
     userId: str = Query(...),
-    image_url: str = Query(...)
+    image_id: str = Query(...)
 ):
-    return await captions_ctrl.delete_caption_group(userId, image_url)
+    return await captions_ctrl.delete_caption_group(userId, image_id)
