@@ -1,3 +1,16 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+Allow: /about
+Allow: /privacy
+Allow: /terms
+Allow: /generate
+Allow: /photo
+Allow: /guidance
+Allow: /mystuff
+Allow: /profile
+Allow: /saved-posts
+Allow: /auth
+Disallow: /network
+
+Sitemap: https://craftsathi.prakharsrivastava019.workers.dev/sitemap.xml
